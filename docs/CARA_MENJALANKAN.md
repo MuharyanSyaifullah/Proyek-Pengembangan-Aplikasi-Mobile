@@ -27,7 +27,7 @@ Hardware yang nyaman: RAM minimal 8 GB (16 GB lebih lega), free space ±10 GB.
 ## 2. Clone Repository
 
 ```bash
-git clone https://github.com/<USERNAME>/Pryk-PAM](https://github.com/informatika-itera/Proyek-Pengembangan-Aplikasi-Mobile.git
+git clone https://github.com/informatika-itera/Proyek-Pengembangan-Aplikasi-Mobile.git
 cd Proyek-Pengembangan-Aplikasi-Mobile
 ```
 
