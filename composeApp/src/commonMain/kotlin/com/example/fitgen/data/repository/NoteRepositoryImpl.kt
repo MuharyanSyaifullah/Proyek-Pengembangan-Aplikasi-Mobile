@@ -18,7 +18,7 @@ import kotlinx.datetime.Clock
 
 class NoteRepositoryImpl(private val database: FitGenDatabase) : NoteRepository {
     
-    private val queries = database.noteQueries
+    private val queries = database.fitGenQueries
     
     override fun getAllNotes(): Flow<List<Note>> {
         return queries.getAllNotes()
