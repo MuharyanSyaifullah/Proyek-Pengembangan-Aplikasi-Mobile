@@ -3,7 +3,7 @@ package com.example.fitgen.data.repository
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOneOrNull
-import com.example.fitgen.data.local.NoteDatabase
+import com.example.fitgen.data.local.FitGenDatabase
 import com.example.fitgen.data.local.entity.toDomain
 import com.example.fitgen.data.local.entity.toDomainList
 import com.example.fitgen.data.local.entity.toEntityValues
@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
 
-class NoteRepositoryImpl(private val database: NoteDatabase) : NoteRepository {
+class NoteRepositoryImpl(private val database: FitGenDatabase) : NoteRepository {
     
     private val queries = database.noteQueries
     
