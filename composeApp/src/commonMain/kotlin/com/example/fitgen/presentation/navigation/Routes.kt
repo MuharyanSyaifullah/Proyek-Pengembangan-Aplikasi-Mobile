@@ -18,6 +18,13 @@ sealed interface Route {
         val noteId: Long? = null,
         val initialText: String? = null
     ) : Route
+
+    // ── Sprint 2: Workout routes ──
+    @Serializable
+    data object WorkoutList : Route
+
+    @Serializable
+    data object AddWorkout : Route
 }
 
 interface NavigationActions {
@@ -25,5 +32,7 @@ interface NavigationActions {
     fun navigateToAddNote(noteId: Long? = null)
     fun navigateToNoteDetail(noteId: Long)
     fun navigateToAIAssistant(noteId: Long? = null, initialText: String? = null)
+    fun navigateToWorkoutList()
+    fun navigateToAddWorkout()
     fun navigateBack()
 }

@@ -22,6 +22,7 @@ import com.example.fitgen.domain.usecase.LogWorkoutUseCase
 // Sprint 2: import com.example.fitgen.domain.usecase.meal.*
 // Sprint 2: import com.example.fitgen.domain.usecase.gps.*
 // Sprint 3: import com.example.fitgen.domain.usecase.bodymetric.*
+import com.example.fitgen.presentation.screens.workout.AddWorkoutViewModel
 import com.example.fitgen.presentation.screens.workout.WorkoutListViewModel
 // Sprint 2: import com.example.fitgen.presentation.screens.meal.MealViewModel
 // Sprint 2: import com.example.fitgen.presentation.screens.gps.GpsViewModel
@@ -126,6 +127,7 @@ val viewModelModule = module {
 
     // --- Workout ViewModel (Sprint 2) ---
     viewModelOf(::WorkoutListViewModel)
+    viewModelOf(::AddWorkoutViewModel)
 
     // --- Meal ViewModel (Sprint 2) ---
     // viewModelOf(::MealViewModel)
