@@ -3,8 +3,11 @@ package com.example.fitgen.data.local.datastore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.fitgen.domain.model.UserProfile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -29,6 +32,13 @@ class UserPreferences(
         val DEFAULT_CATEGORY = stringPreferencesKey("default_category")
         val SHOW_PREVIEW = booleanPreferencesKey("show_preview")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        
+        // --- Sprint 3: User Profile ---
+        val USER_NAME = stringPreferencesKey("user_name")
+        val USER_AGE = intPreferencesKey("user_age")
+        val USER_HEIGHT = doublePreferencesKey("user_height")
+        val USER_WEIGHT = doublePreferencesKey("user_weight")
+        val USER_GOAL = stringPreferencesKey("user_goal")
     }
     
     // ==================== DARK MODE ====================
@@ -118,6 +128,34 @@ class UserPreferences(
     suspend fun setOnboardingCompleted() {
         dataStore.edit { prefs ->
             prefs[Keys.ONBOARDING_COMPLETED] = true
+        }
+    }
+    
+    // ==================== USER PROFILE ====================
+    
+    /**
+     * Observe User Profile
+     */
+    val userProfile: Flow<UserProfile> = dataStore.data.map { prefs ->
+        UserProfile(
+            name = prefs[Keys.USER_NAME] ?: "",
+            age = prefs[Keys.USER_AGE] ?: 0,
+            heightCm = prefs[Keys.USER_HEIGHT] ?: 0.0,
+            weightKg = prefs[Keys.USER_WEIGHT] ?: 0.0,
+            goal = prefs[Keys.USER_GOAL] ?: ""
+        )
+    }
+    
+    /**
+     * Save User Profile
+     */
+    suspend fun saveUserProfile(profile: UserProfile) {
+        dataStore.edit { prefs ->
+            prefs[Keys.USER_NAME] = profile.name
+            prefs[Keys.USER_AGE] = profile.age
+            prefs[Keys.USER_HEIGHT] = profile.heightCm
+            prefs[Keys.USER_WEIGHT] = profile.weightKg
+            prefs[Keys.USER_GOAL] = profile.goal
         }
     }
 }
