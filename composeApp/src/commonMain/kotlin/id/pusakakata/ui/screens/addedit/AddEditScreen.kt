@@ -38,8 +38,10 @@ fun AddEditScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.saveWord() }) {
-                Icon(Icons.Default.Check, contentDescription = "Simpan")
+            if (state.canSave) {
+                FloatingActionButton(onClick = { viewModel.saveWord() }) {
+                    Icon(Icons.Default.Check, contentDescription = "Simpan")
+                }
             }
         }
     ) { padding ->
@@ -50,25 +52,37 @@ fun AddEditScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (state.error != null) {
+                Text(state.error!!, color = MaterialTheme.colorScheme.error)
+            }
+            
             OutlinedTextField(
                 value = state.term,
                 onValueChange = { viewModel.onTermChange(it) },
                 label = { Text("Kosakata") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = state.term.isBlank() && state.term.isNotEmpty()
             )
             OutlinedTextField(
                 value = state.definition,
                 onValueChange = { viewModel.onDefinitionChange(it) },
                 label = { Text("Definisi") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
+                isError = state.definition.isBlank() && state.definition.isNotEmpty()
             )
-            OutlinedTextField(
-                value = state.category,
-                onValueChange = { viewModel.onCategoryChange(it) },
-                label = { Text("Kategori") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            
+            Text("Pilih Kategori", style = MaterialTheme.typography.labelLarge)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Umum", "Sastra", "Arkais").forEach { cat ->
+                    FilterChip(
+                        selected = state.category == cat,
+                        onClick = { viewModel.onCategoryChange(cat) },
+                        label = { Text(cat) }
+                    )
+                }
+            }
         }
     }
 }

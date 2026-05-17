@@ -17,8 +17,11 @@ data class AddEditUiState(
     val definition: String = "",
     val category: String = "Umum",
     val isSuccess: Boolean = false,
-    val isLoading: Boolean = false
-)
+    val isLoading: Boolean = false,
+    val error: String? = null
+) {
+    val canSave: Boolean get() = term.isNotBlank() && definition.isNotBlank()
+}
 
 class AddEditViewModel(
     private val repository: WordRepository,
@@ -46,7 +49,7 @@ class AddEditViewModel(
                         isLoading = false
                     )
                 }
-            }
+            } ?: _uiState.update { it.copy(isLoading = false, error = "Kata tidak ditemukan") }
         }
     }
 
@@ -64,20 +67,26 @@ class AddEditViewModel(
 
     @OptIn(ExperimentalUuidApi::class)
     fun saveWord() {
+        if (!_uiState.value.canSave) return
+        
         viewModelScope.launch {
             val currentState = _uiState.value
             val word = Word(
                 id = wordId ?: Uuid.random().toString(),
-                term = currentState.term,
-                definition = currentState.definition,
-                category = currentState.category
+                term = currentState.term.trim(),
+                definition = currentState.definition.trim(),
+                category = currentState.category.trim()
             )
-            if (wordId == null) {
-                repository.insertWord(word)
-            } else {
-                repository.updateWord(word)
+            try {
+                if (wordId == null) {
+                    repository.insertWord(word)
+                } else {
+                    repository.updateWord(word)
+                }
+                _uiState.update { it.copy(isSuccess = true) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
             }
-            _uiState.update { it.copy(isSuccess = true) }
         }
     }
 }
