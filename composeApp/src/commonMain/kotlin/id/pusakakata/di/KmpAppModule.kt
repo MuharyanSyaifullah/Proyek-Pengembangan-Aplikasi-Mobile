@@ -6,6 +6,7 @@ import id.pusakakata.ui.screens.home.HomeViewModel
 import id.pusakakata.ui.screens.addedit.AddEditViewModel
 import id.pusakakata.ui.screens.detail.DetailViewModel
 import id.pusakakata.ui.screens.gacha.GachaViewModel
+import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
 import id.pusakakata.domain.usecase.GachaSystem
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity
@@ -15,7 +16,6 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
-import org.koin.core.parameter.parametersOf
 
 val databaseModule = module {
     single {
@@ -45,6 +45,7 @@ val useCaseModule = module {
 val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::GachaViewModel)
+    viewModelOf(::FlashcardViewModel)
     factory { (wordId: String?) -> AddEditViewModel(get(), wordId) }
     factory { (wordId: String) -> DetailViewModel(get(), wordId) }
 }

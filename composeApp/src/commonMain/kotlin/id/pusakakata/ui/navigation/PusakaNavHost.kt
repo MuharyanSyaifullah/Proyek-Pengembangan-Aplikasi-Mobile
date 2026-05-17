@@ -14,6 +14,8 @@ import id.pusakakata.ui.screens.detail.DetailViewModel
 import id.pusakakata.ui.screens.gacha.GachaScreen
 import id.pusakakata.ui.screens.gacha.GachaViewModel
 import id.pusakakata.ui.screens.about.AboutScreen
+import id.pusakakata.ui.screens.flashcard.FlashcardScreen
+import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -30,7 +32,8 @@ fun PusakaNavHost(navController: NavHostController) {
                 onAddWord = { navController.navigate(Screen.AddEdit.passId()) },
                 onWordClick = { id -> navController.navigate(Screen.Detail.passId(id)) },
                 onNavigateToGacha = { navController.navigate(Screen.Gacha.route) },
-                onNavigateToAbout = { navController.navigate(Screen.About.route) }
+                onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                onNavigateToFlashcard = { navController.navigate(Screen.Flashcard.route) }
             )
         }
         composable(
@@ -65,6 +68,13 @@ fun PusakaNavHost(navController: NavHostController) {
         }
         composable(Screen.About.route) {
             AboutScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Screen.Flashcard.route) {
+            val viewModel: FlashcardViewModel = koinViewModel()
+            FlashcardScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

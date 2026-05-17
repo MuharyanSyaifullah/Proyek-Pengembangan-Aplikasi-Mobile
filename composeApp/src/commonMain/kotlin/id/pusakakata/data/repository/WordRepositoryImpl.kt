@@ -45,6 +45,10 @@ class WordRepositoryImpl(db: PusakaDatabase) : WordRepository {
             term = word.term,
             definition = word.definition,
             category = word.category,
+            intervalDays = word.srsData.intervalDays.toLong(),
+            easeFactor = word.srsData.easeFactor,
+            nextReview = word.srsData.nextReview?.toEpochMilliseconds(),
+            level = word.srsData.level.toLong(),
             id = word.id
         )
     }
@@ -53,7 +57,6 @@ class WordRepositoryImpl(db: PusakaDatabase) : WordRepository {
         queries.deleteWord(id)
     }
 
-    // Helper Extension
     private fun id.pusakakata.data.local.WordEntity.toDomain() = Word(
         id = id,
         term = term,

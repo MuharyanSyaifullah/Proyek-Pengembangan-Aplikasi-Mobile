@@ -25,4 +25,12 @@ deleteWord:
 DELETE FROM WordEntity WHERE id = ?;
 
 updateWord:
-UPDATE WordEntity SET term = ?, definition = ?, category = ? WHERE id = ?;
+UPDATE WordEntity
+SET term = ?,
+    definition = ?,
+    category = ?,
+    intervalDays = ?,
+    easeFactor = ?,
+    nextReview = ?,
+    level = ?
+WHERE id = ?;
