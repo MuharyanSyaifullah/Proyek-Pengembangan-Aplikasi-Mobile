@@ -8,7 +8,7 @@
 
 ## 👥 Tim Pengembang
 * **Muharyan Syaifullah** (123140045) - Lead Developer & Architecture
-* **Eka Putri Azhari Ritonga** (123140029) - UI/UX Designer & Developer
+* **Eka Putri Azhari Ritonga** (123140028) - UI/UX Designer & Developer
 
 ---
 
