@@ -1,9 +1,9 @@
 package id.pusakakata.data.repository
 
 import id.pusakakata.data.local.PusakaDatabase
-import id.pusakakata.domain.model.SRSData
+import id.pusakakata.data.remote.ApiService
 import id.pusakakata.domain.model.Word
-import id.pusakakata.domain.repository.WordRepository
+import id.pusakakata.domain.repository.ItemRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import app.cash.sqldelight.coroutines.asFlow
@@ -11,9 +11,11 @@ import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
-class WordRepositoryImpl(db: PusakaDatabase) : WordRepository {
+class ItemRepositoryImpl(
+    db: PusakaDatabase,
+    private val apiService: ApiService
+) : ItemRepository {
     private val queries = db.pusakaDatabaseQueries
 
     override fun getAllWords(): Flow<List<Word>> {
@@ -57,16 +59,23 @@ class WordRepositoryImpl(db: PusakaDatabase) : WordRepository {
         queries.deleteWord(id)
     }
 
-    private fun id.pusakakata.data.local.WordEntity.toDomain() = Word(
-        id = id,
-        term = term,
-        definition = definition,
-        category = category,
-        srsData = SRSData(
-            intervalDays = intervalDays.toInt(),
-            easeFactor = easeFactor,
-            nextReview = nextReview?.let { Instant.fromEpochMilliseconds(it) },
-            level = level.toInt()
-        )
-    )
+    override suspend fun searchOnline(word: String): Result<Word> {
+        return try {
+            val response = apiService.fetchDefinition(word)
+            if (response.status && response.data != null) {
+                Result.success(
+                    Word(
+                        id = "", // ID will be generated on save
+                        term = response.data.lema,
+                        definition = response.data.arti.joinToString("\n"),
+                        category = "Umum"
+                    )
+                )
+            } else {
+                Result.failure(Exception(response.message ?: "Kata tidak ditemukan"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

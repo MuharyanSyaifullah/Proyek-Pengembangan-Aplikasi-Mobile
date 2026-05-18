@@ -3,7 +3,7 @@ package id.pusakakata.ui.screens.addedit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import id.pusakakata.domain.model.Word
-import id.pusakakata.domain.repository.WordRepository
+import id.pusakakata.domain.repository.ItemRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,20 +12,8 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-data class AddEditUiState(
-    val wordId: String? = null,
-    val term: String = "",
-    val definition: String = "",
-    val category: String = "Umum",
-    val isSuccess: Boolean = false,
-    val isLoading: Boolean = false,
-    val error: String? = null
-) {
-    val canSave: Boolean get() = term.isNotBlank() && definition.isNotBlank()
-}
-
 class AddEditViewModel(
-    private val repository: WordRepository,
+    private val repository: ItemRepository,
     private val wordId: String?
 ) : ViewModel() {
 
@@ -64,6 +52,27 @@ class AddEditViewModel(
 
     fun onCategoryChange(newCat: String) {
         _uiState.update { it.copy(category = newCat) }
+    }
+
+    fun searchOnline() {
+        val term = _uiState.value.term
+        if (term.isBlank()) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            repository.searchOnline(term)
+                .onSuccess { word ->
+                    _uiState.update { 
+                        it.copy(
+                            definition = word.definition,
+                            isLoading = false
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)

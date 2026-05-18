@@ -1,7 +1,7 @@
 package id.pusakakata.di
 
-import id.pusakakata.data.repository.WordRepositoryImpl
-import id.pusakakata.domain.repository.WordRepository
+import id.pusakakata.data.repository.ItemRepositoryImpl
+import id.pusakakata.domain.repository.ItemRepository
 import id.pusakakata.ui.screens.home.HomeViewModel
 import id.pusakakata.ui.screens.addedit.AddEditViewModel
 import id.pusakakata.ui.screens.detail.DetailViewModel
@@ -11,11 +11,30 @@ import id.pusakakata.domain.usecase.GachaSystem
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity
 import id.pusakakata.data.local.PusakaDatabase
+import id.pusakakata.data.remote.ApiService
 import id.pusakakata.core.util.DatabaseDriverFactory
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
+
+val networkModule = module {
+    single {
+        HttpClient {
+            install(ContentNegotiation) {
+                json(Json {
+                    ignoreUnknownKeys = true
+                    coerceInputValues = true
+                })
+            }
+        }
+    }
+    single { ApiService(get()) }
+}
 
 val databaseModule = module {
     single {
@@ -25,7 +44,7 @@ val databaseModule = module {
 }
 
 val repositoryModule = module {
-    singleOf(::WordRepositoryImpl) bind WordRepository::class
+    single<ItemRepository> { ItemRepositoryImpl(get(), get()) }
 }
 
 val useCaseModule = module {
@@ -51,6 +70,7 @@ val viewModelModule = module {
 }
 
 val allPusakaKataModules = listOf(
+    networkModule,
     databaseModule,
     repositoryModule,
     useCaseModule,

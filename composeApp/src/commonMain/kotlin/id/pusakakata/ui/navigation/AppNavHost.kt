@@ -20,24 +20,24 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun PusakaNavHost(navController: NavHostController) {
+fun AppNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Routes.Home.route
     ) {
-        composable(Screen.Home.route) {
+        composable(Routes.Home.route) {
             val viewModel: HomeViewModel = koinViewModel()
             HomeScreen(
                 viewModel = viewModel,
-                onAddWord = { navController.navigate(Screen.AddEdit.passId()) },
-                onWordClick = { id -> navController.navigate(Screen.Detail.passId(id)) },
-                onNavigateToGacha = { navController.navigate(Screen.Gacha.route) },
-                onNavigateToAbout = { navController.navigate(Screen.About.route) },
-                onNavigateToFlashcard = { navController.navigate(Screen.Flashcard.route) }
+                onAddWord = { navController.navigate(Routes.AddEdit.passId()) },
+                onWordClick = { id -> navController.navigate(Routes.Detail.passId(id)) },
+                onNavigateToGacha = { navController.navigate(Routes.Gacha.route) },
+                onNavigateToAbout = { navController.navigate(Routes.About.route) },
+                onNavigateToFlashcard = { navController.navigate(Routes.Flashcard.route) }
             )
         }
         composable(
-            route = Screen.AddEdit.route,
+            route = Routes.AddEdit.route,
             arguments = listOf(navArgument("wordId") { nullable = true })
         ) { backStackEntry ->
             val wordId = backStackEntry.arguments?.getString("wordId")
@@ -48,7 +48,7 @@ fun PusakaNavHost(navController: NavHostController) {
             )
         }
         composable(
-            route = Screen.Detail.route,
+            route = Routes.Detail.route,
             arguments = listOf(navArgument("wordId") { nullable = false })
         ) { backStackEntry ->
             val wordId = backStackEntry.arguments?.getString("wordId")!!
@@ -56,20 +56,20 @@ fun PusakaNavHost(navController: NavHostController) {
             DetailScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
-                onEdit = { id -> navController.navigate(Screen.AddEdit.passId(id)) }
+                onEdit = { id -> navController.navigate(Routes.AddEdit.passId(id)) }
             )
         }
-        composable(Screen.Gacha.route) {
+        composable(Routes.Gacha.route) {
             val viewModel: GachaViewModel = koinViewModel()
             GachaScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }
-        composable(Screen.About.route) {
+        composable(Routes.About.route) {
             AboutScreen(onBack = { navController.popBackStack() })
         }
-        composable(Screen.Flashcard.route) {
+        composable(Routes.Flashcard.route) {
             val viewModel: FlashcardViewModel = koinViewModel()
             FlashcardScreen(
                 viewModel = viewModel,
