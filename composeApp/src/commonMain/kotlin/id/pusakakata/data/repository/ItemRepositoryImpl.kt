@@ -72,10 +72,16 @@ class ItemRepositoryImpl(
                     )
                 )
             } else {
-                Result.failure(Exception(response.message ?: "Kata tidak ditemukan"))
+                val errorMsg = when (response.message?.lowercase()) {
+                    "illegal input status" -> "Kata tidak ditemukan atau input tidak valid."
+                    null -> "Data tidak ditemukan."
+                    else -> response.message
+                }
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            // Handle serialization error or network error
+            Result.failure(Exception("Gagal mengambil data. Pastikan koneksi internet aktif."))
         }
     }
 }
