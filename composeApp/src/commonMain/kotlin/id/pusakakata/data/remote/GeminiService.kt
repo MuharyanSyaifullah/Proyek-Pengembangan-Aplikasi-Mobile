@@ -10,41 +10,57 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 data class GeminiRequest(
-    val contents: List<GeminiContent>
+    val contents: List<GeminiContent>,
+    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig()
 )
 
 @Serializable
 data class GeminiContent(
-    val parts: List<GeminiPart>
+    val parts: List<GeminiPart>,
+    val role: String? = null
 )
 
 @Serializable
 data class GeminiPart(
-    val text: String
+    val text: String? = null
+)
+
+@Serializable
+data class GeminiGenerationConfig(
+    val temperature: Double = 0.7,
+    val maxOutputTokens: Int = 1000,
+    val topP: Double = 0.95
 )
 
 @Serializable
 data class GeminiResponse(
-    val candidates: List<Candidate>? = null
-) {
-    @Serializable
-    data class Candidate(val content: Content)
-    @Serializable
-    data class Content(val parts: List<Part>)
-    @Serializable
-    data class Part(val text: String)
-}
+    val candidates: List<GeminiCandidate> = emptyList(),
+    val promptFeedback: GeminiPromptFeedback? = null
+)
+
+@Serializable
+data class GeminiCandidate(
+    val content: GeminiContent? = null,
+    val finishReason: String? = null
+)
+
+@Serializable
+data class GeminiPromptFeedback(
+    val blockReason: String? = null
+)
 
 class GeminiService(
     private val client: HttpClient,
     private val apiKey: String
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
+    private val jsonParser = Json { 
+        ignoreUnknownKeys = true 
+        coerceInputValues = true
+    }
 
     suspend fun generateDefinition(word: String): String {
         if (apiKey.isBlank()) return "API Key belum terisi."
         
-        // Menggunakan gemini-1.5-flash yang merupakan model default terbaru untuk v1beta
         val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
@@ -66,19 +82,19 @@ class GeminiService(
             val responseBody = response.bodyAsText()
             
             if (response.status.value != 200) {
-                return "AI gagal merespon (Status ${response.status.value}). Pesan: $responseBody"
+                return "Error ${response.status.value}: $responseBody"
             }
 
-            val geminiResponse = json.decodeFromString<GeminiResponse>(responseBody)
-            val resultText = geminiResponse.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            val geminiResponse = jsonParser.decodeFromString<GeminiResponse>(responseBody)
+            val resultText = geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
             
             if (!resultText.isNullOrBlank()) {
                 resultText.trim()
             } else {
-                "Pusaka '$word' belum tersedia definisinya di memori AI."
+                "AI tidak memberikan respon (Empty Result)."
             }
         } catch (e: Exception) {
-            "Gagal memanggil AI: ${e.message}"
+            "Kesalahan: ${e.message}"
         }
     }
 }
