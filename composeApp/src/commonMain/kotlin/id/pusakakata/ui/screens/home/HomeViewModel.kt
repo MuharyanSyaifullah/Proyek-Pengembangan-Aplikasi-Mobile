@@ -8,7 +8,11 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
     private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
     private val _errorMessage = MutableStateFlow<String?>(null)
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
@@ -24,10 +28,10 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
     private fun observeWords() {
         viewModelScope.launch {
             combine(repository.getAllWords(), _searchQuery, _isSearching) { words, query, searching ->
-                if (words.isEmpty() && !searching) {
+                if (words.isEmpty() && !searching && query.isEmpty()) {
                     HomeUiState.Empty
                 } else {
-                    val filtered = if (query.isBlank() || searching) {
+                    val filtered = if (searching || query.isEmpty()) {
                         words
                     } else {
                         words.filter { 
@@ -35,7 +39,7 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
                             it.definition.contains(query, ignoreCase = true) 
                         }
                     }
-                    HomeUiState.Success(filtered, query, searching)
+                    HomeUiState.Success(filtered)
                 }
             }.catch { 
                 _uiState.value = HomeUiState.Error(it.message ?: "Unknown Error") 
@@ -58,7 +62,7 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
             repository.searchAndSave(query)
                 .onFailure { _errorMessage.value = it.message }
             _isSearching.value = false
-            _searchQuery.value = "" // Reset search bar after successful find
+            _searchQuery.value = "" // Reset setelah berhasil
         }
     }
 

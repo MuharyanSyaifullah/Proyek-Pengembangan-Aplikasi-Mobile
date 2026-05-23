@@ -12,7 +12,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import id.pusakakata.ui.components.EmptyState
 import id.pusakakata.ui.components.LoadingIndicator
@@ -29,6 +28,8 @@ fun HomeScreen(
     onNavigateToQuiz: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val isSearching by viewModel.isSearching.collectAsState()
     val tokens by viewModel.tokens.collectAsState()
 
     Scaffold(
@@ -52,17 +53,17 @@ fun HomeScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Search Bar is now the PRIMARY ENTRY
+            // Search Bar Fix: Always uses searchQuery state
             OutlinedTextField(
-                value = if (uiState is HomeUiState.Success) (uiState as HomeUiState.Success).searchQuery else "",
+                value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 placeholder = { Text("Cari makna kata baru...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
-                    if (uiState is HomeUiState.Success && (uiState as HomeUiState.Success).isSearching) {
+                    if (isSearching) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                    } else {
+                    } else if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.executeSearch() }) {
                             Icon(Icons.Default.ArrowForward, contentDescription = "Cari Online")
                         }
@@ -76,47 +77,51 @@ fun HomeScreen(
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
                     is HomeUiState.Empty -> EmptyState(
-                        message = "Belum ada riwayat pencarian. Cari kata di atas untuk memulai!",
+                        message = "Belum ada riwayat. Cari kata baru di atas!",
                     )
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
                         val words = state.words
-                        LazyColumn(
-                            contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            item {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Button(
-                                        onClick = onNavigateToQuiz,
-                                        modifier = Modifier.weight(1f),
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
-                                        shape = RoundedCornerShape(12.dp)
+                        if (words.isEmpty() && searchQuery.isNotEmpty()) {
+                            EmptyState(message = "Pusaka '${searchQuery}' tidak ditemukan lokal. Klik panah untuk cari online.")
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                item {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Icon(Icons.Default.Quiz, contentDescription = null)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Mulai Kuis")
-                                    }
-                                    Button(
-                                        onClick = onNavigateToGacha,
-                                        modifier = Modifier.weight(1f),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Icon(Icons.Default.Casino, contentDescription = null)
-                                        Spacer(Modifier.width(8.dp))
-                                        Text("Gacha")
+                                        Button(
+                                            onClick = onNavigateToQuiz,
+                                            modifier = Modifier.weight(1f),
+                                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ) {
+                                            Icon(Icons.Default.Quiz, contentDescription = null)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("Mulai Kuis")
+                                        }
+                                        Button(
+                                            onClick = onNavigateToGacha,
+                                            modifier = Modifier.weight(1f),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ) {
+                                            Icon(Icons.Default.Casino, contentDescription = null)
+                                            Spacer(Modifier.width(8.dp))
+                                            Text("Gacha")
+                                        }
                                     }
                                 }
-                            }
-                            items(words, key = { it.id }) { word ->
-                                ItemCard(
-                                    word = word,
-                                    onClick = { onWordClick(word.id) },
-                                    onDelete = { viewModel.deleteWord(word.id) }
-                                )
+                                items(words, key = { it.id }) { word ->
+                                    ItemCard(
+                                        word = word,
+                                        onClick = { onWordClick(word.id) },
+                                        onDelete = { viewModel.deleteWord(word.id) }
+                                    )
+                                }
                             }
                         }
                     }
