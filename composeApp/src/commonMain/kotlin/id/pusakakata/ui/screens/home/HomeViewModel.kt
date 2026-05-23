@@ -13,7 +13,8 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
     private val _isSearching = MutableStateFlow(false)
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
-    private val _errorMessage = MutableStateFlow<String?>(null)
+    private val _searchError = MutableStateFlow<String?>(null)
+    val searchError: StateFlow<String?> = _searchError.asStateFlow()
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState
@@ -51,6 +52,7 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
 
     fun onSearchQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
+        _searchError.value = null // Reset error saat mulai ngetik lagi
     }
 
     fun executeSearch() {
@@ -59,10 +61,15 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
 
         viewModelScope.launch {
             _isSearching.value = true
+            _searchError.value = null
             repository.searchAndSave(query)
-                .onFailure { _errorMessage.value = it.message }
+                .onFailure { 
+                    _searchError.value = "Pusaka '$query' tidak ditemukan di jagat maya." 
+                }
+                .onSuccess {
+                    _searchQuery.value = "" // Reset setelah ketemu dan tersimpan
+                }
             _isSearching.value = false
-            _searchQuery.value = "" // Reset setelah berhasil
         }
     }
 

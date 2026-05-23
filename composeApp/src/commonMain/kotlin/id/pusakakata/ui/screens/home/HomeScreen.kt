@@ -30,6 +30,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
+    val searchError by viewModel.searchError.collectAsState()
     val tokens by viewModel.tokens.collectAsState()
 
     Scaffold(
@@ -53,37 +54,52 @@ fun HomeScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Search Bar Fix: Always uses searchQuery state
+            // Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text("Cari makna kata baru...") },
+                placeholder = { Text("Tanyakan makna kata ke AI...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (isSearching) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     } else if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.executeSearch() }) {
-                            Icon(Icons.Default.ArrowForward, contentDescription = "Cari Online")
+                            Icon(Icons.Default.Send, contentDescription = "Tanya AI")
                         }
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                isError = searchError != null
             )
+
+            if (searchError != null) {
+                Text(
+                    text = searchError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
                     is HomeUiState.Empty -> EmptyState(
-                        message = "Belum ada riwayat. Cari kata baru di atas!",
+                        message = "Pusaka masih kosong. Ketik kata di atas untuk memanggil bantuan AI!",
                     )
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
                         val words = state.words
                         if (words.isEmpty() && searchQuery.isNotEmpty()) {
-                            EmptyState(message = "Pusaka '${searchQuery}' tidak ditemukan lokal. Klik panah untuk cari online.")
+                            // Sesuai permintaan: Hilangkan tulisan "tidak ditemukan lokal"
+                            EmptyState(
+                                message = "Cari makna '$searchQuery' dengan bantuan AI sekarang.",
+                                onAction = { viewModel.executeSearch() },
+                                actionLabel = "Tanya AI Pusaka"
+                            )
                         } else {
                             LazyColumn(
                                 contentPadding = PaddingValues(16.dp),
@@ -97,7 +113,10 @@ fun HomeScreen(
                                         Button(
                                             onClick = onNavigateToQuiz,
                                             modifier = Modifier.weight(1f),
-                                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.secondaryContainer, 
+                                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                            ),
                                             shape = RoundedCornerShape(12.dp)
                                         ) {
                                             Icon(Icons.Default.Quiz, contentDescription = null)
