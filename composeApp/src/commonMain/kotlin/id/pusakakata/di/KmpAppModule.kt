@@ -18,6 +18,7 @@ import id.pusakakata.core.util.DatabaseDriverFactory
 import id.pusakakata.core.network.ApiConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.viewModelOf
@@ -31,6 +32,10 @@ val networkModule = module {
                     ignoreUnknownKeys = true
                     coerceInputValues = true
                 })
+            }
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = Logger.DEFAULT
             }
         }
     }
