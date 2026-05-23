@@ -1,7 +1,6 @@
 package id.pusakakata.core.network
 
 object ApiConfig {
-    // Di dunia nyata, ini tidak boleh di-hardcode. 
-    // Untuk presentasi, anda bisa mengisinya di sini atau menggunakan BuildKonfig/BuildConfig.
-    const val GEMINI_API_KEY = "" // Isikan API Key Gemini anda di sini
+    // API Key Gemini untuk fitur asisten kosa kata AI
+    const val GEMINI_API_KEY = "AIzaSyB8Vl_6u9kxu1-O4UCw-sDAOd_UNB2kbmM"
 }
