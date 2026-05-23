@@ -2,6 +2,7 @@ package id.pusakakata.data.repository
 
 import id.pusakakata.data.local.PusakaDatabase
 import id.pusakakata.data.remote.ApiService
+import id.pusakakata.data.remote.GeminiService
 import id.pusakakata.domain.model.Word
 import id.pusakakata.domain.repository.ItemRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,8 +17,9 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class ItemRepositoryImpl(
-    db: PusakaDatabase,
-    private val apiService: ApiService
+    private val db: PusakaDatabase,
+    private val apiService: ApiService,
+    private val geminiService: GeminiService
 ) : ItemRepository {
     private val queries = db.pusakaDatabaseQueries
 
@@ -65,19 +67,28 @@ class ItemRepositoryImpl(
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun searchAndSave(word: String): Result<Word> {
         return try {
-            val response = apiService.fetchDefinition(word)
-            if (response.status && response.data != null) {
-                val newWord = Word(
-                    id = Uuid.random().toString(),
-                    term = response.data.lema,
-                    definition = response.data.arti.joinToString("\n"),
-                    category = "Umum"
-                )
-                insertWord(newWord)
-                Result.success(newWord)
-            } else {
-                Result.failure(Exception("Kata tidak ditemukan"))
+            // Coba Kamus Resmi dulu
+            val response = try { 
+                apiService.fetchDefinition(word) 
+            } catch (e: Exception) { 
+                null 
             }
+            
+            val definition = if (response != null && response.status && response.data != null) {
+                response.data.arti.joinToString("\n")
+            } else {
+                // Jika tidak ada di kamus atau API error, Tanya AI
+                geminiService.generateDefinition(word)
+            }
+
+            val newWord = Word(
+                id = Uuid.random().toString(),
+                term = response?.data?.lema ?: word.replaceFirstChar { it.uppercase() },
+                definition = definition,
+                category = if (response?.status == true) "Baku" else "AI"
+            )
+            insertWord(newWord)
+            Result.success(newWord)
         } catch (e: Exception) {
             Result.failure(e)
         }

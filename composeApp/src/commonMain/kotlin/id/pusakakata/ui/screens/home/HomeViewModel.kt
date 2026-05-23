@@ -63,11 +63,10 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
         val query = _searchQuery.value.trim()
         if (query.isBlank()) return
 
-        // Cek apakah sudah ada di lokal (case-insensitive)
-        val existsLocally = _cachedWords.any { it.term.equals(query, ignoreCase = true) }
-        
-        if (existsLocally) {
-            _searchQuery.value = "" // Reset agar filter hilang dan item terlihat
+        // Jika sudah ada di lokal, jangan panggil AI lagi, cukup bersihkan filter
+        val alreadyExists = _cachedWords.any { it.term.equals(query, ignoreCase = true) }
+        if (alreadyExists) {
+            _searchQuery.value = ""
             return
         }
 
@@ -76,10 +75,10 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
             _searchError.value = null
             repository.searchAndSave(query)
                 .onSuccess {
-                    _searchQuery.value = "" // Berhasil simpan, reset bar
+                    _searchQuery.value = "" // Clear search so the new word is visible in full list
                 }
                 .onFailure { 
-                    _searchError.value = "Pusaka '$query' tidak ditemukan."
+                    _searchError.value = "Pusaka '$query' gagal dipanggil: ${it.message}"
                 }
             _isSearching.value = false
         }

@@ -13,14 +13,15 @@ import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity
 import id.pusakakata.data.local.PusakaDatabase
 import id.pusakakata.data.remote.ApiService
+import id.pusakakata.data.remote.GeminiService
 import id.pusakakata.core.util.DatabaseDriverFactory
+import id.pusakakata.core.network.ApiConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import org.koin.dsl.bind
 
 val networkModule = module {
     single {
@@ -34,6 +35,7 @@ val networkModule = module {
         }
     }
     single { ApiService(get()) }
+    single { GeminiService(get(), ApiConfig.GEMINI_API_KEY) }
 }
 
 val databaseModule = module {
@@ -44,7 +46,7 @@ val databaseModule = module {
 }
 
 val repositoryModule = module {
-    single<ItemRepository> { ItemRepositoryImpl(get(), get()) }
+    single<ItemRepository> { ItemRepositoryImpl(get(), get(), get()) }
 }
 
 val useCaseModule = module {

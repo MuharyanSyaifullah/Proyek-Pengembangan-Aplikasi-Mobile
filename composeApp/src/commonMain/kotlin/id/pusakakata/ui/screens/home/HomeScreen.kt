@@ -59,7 +59,7 @@ fun HomeScreen(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text("Cari makna pusaka...") },
+                placeholder = { Text("Tanyakan makna pusaka...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (isSearching) {
@@ -88,14 +88,13 @@ fun HomeScreen(
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
                     is HomeUiState.Empty -> EmptyState(
-                        message = "Pusaka masih kosong. Ketik kata di atas untuk mulai mencari!",
+                        message = "Pusaka masih kosong. Ketik kata di atas untuk mulai memanggil AI!",
                     )
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
                         val words = state.words
                         if (words.isEmpty() && searchQuery.isNotEmpty()) {
-                            // Jika filter lokal tidak ada, beri instruksi tekan Send
-                            EmptyState(message = "Tekan ikon kirim di atas untuk mencari makna '$searchQuery' secara online.")
+                            EmptyState(message = "Tekan ikon kirim untuk memanggil makna '$searchQuery' dari AI.")
                         } else {
                             LazyColumn(
                                 contentPadding = PaddingValues(16.dp),
