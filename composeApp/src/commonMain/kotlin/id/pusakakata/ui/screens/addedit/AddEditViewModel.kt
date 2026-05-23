@@ -60,7 +60,7 @@ class AddEditViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.searchOnline(term)
+            repository.searchAndSave(term)
                 .onSuccess { word ->
                     _uiState.update { 
                         it.copy(

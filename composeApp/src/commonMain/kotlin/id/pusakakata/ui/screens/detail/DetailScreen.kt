@@ -3,7 +3,6 @@ package id.pusakakata.ui.screens.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,8 +18,7 @@ import id.pusakakata.ui.components.ErrorMessage
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel,
-    onBack: () -> Unit,
-    onEdit: (String) -> Unit
+    onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -35,12 +33,8 @@ fun DetailScreen(
                 },
                 actions = {
                     if (uiState is DetailUiState.Success) {
-                        val word = (uiState as DetailUiState.Success).word
-                        IconButton(onClick = { /* Share logic handled by platform or UI */ }) {
+                        IconButton(onClick = { /* Implement platform specific share if needed */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Bagikan")
-                        }
-                        IconButton(onClick = { onEdit(word.id) }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Edit")
                         }
                     }
                 }
@@ -96,22 +90,15 @@ fun DetailScreen(
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        // SRS Info Card
                         Card(
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant
                             )
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Informasi Belajar (SRS)", style = MaterialTheme.typography.titleMedium)
+                                Text("Riwayat Pengetahuan", style = MaterialTheme.typography.titleMedium)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text("Level: ${word.srsData.level}")
-                                    Text("Ease: ${word.srsData.easeFactor}")
-                                }
+                                Text("Tersimpan secara lokal di pusaka anda.", style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }

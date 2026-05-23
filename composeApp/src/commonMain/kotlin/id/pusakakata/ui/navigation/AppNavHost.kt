@@ -17,6 +17,8 @@ import id.pusakakata.ui.screens.about.AboutScreen
 import id.pusakakata.ui.screens.flashcard.FlashcardScreen
 import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
 import id.pusakakata.ui.screens.settings.SettingsScreen
+import id.pusakakata.ui.screens.quiz.QuizScreen
+import id.pusakakata.ui.screens.quiz.QuizViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -30,12 +32,10 @@ fun AppNavHost(navController: NavHostController) {
             val viewModel: HomeViewModel = koinViewModel()
             HomeScreen(
                 viewModel = viewModel,
-                onAddWord = { navController.navigate(Routes.AddEdit.passId()) },
                 onWordClick = { id -> navController.navigate(Routes.Detail.passId(id)) },
                 onNavigateToGacha = { navController.navigate(Routes.Gacha.route) },
-                onNavigateToAbout = { navController.navigate(Routes.About.route) },
-                onNavigateToFlashcard = { navController.navigate(Routes.Flashcard.route) },
-                onNavigateToSettings = { navController.navigate(Routes.Settings.route) }
+                onNavigateToSettings = { navController.navigate(Routes.Settings.route) },
+                onNavigateToQuiz = { navController.navigate(Routes.Quiz.route) }
             )
         }
         composable(
@@ -57,8 +57,7 @@ fun AppNavHost(navController: NavHostController) {
             val viewModel: DetailViewModel = koinViewModel { parametersOf(wordId) }
             DetailScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-                onEdit = { id -> navController.navigate(Routes.AddEdit.passId(id)) }
+                onBack = { navController.popBackStack() }
             )
         }
         composable(Routes.Gacha.route) {
@@ -80,6 +79,13 @@ fun AppNavHost(navController: NavHostController) {
         composable(Routes.Flashcard.route) {
             val viewModel: FlashcardViewModel = koinViewModel()
             FlashcardScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+        composable(Routes.Quiz.route) {
+            val viewModel: QuizViewModel = koinViewModel()
+            QuizScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )

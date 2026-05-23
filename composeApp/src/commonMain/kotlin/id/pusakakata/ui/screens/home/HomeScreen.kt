@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import id.pusakakata.ui.components.EmptyState
 import id.pusakakata.ui.components.LoadingIndicator
@@ -22,105 +23,100 @@ import id.pusakakata.ui.components.ItemCard
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    onAddWord: () -> Unit,
     onWordClick: (String) -> Unit,
     onNavigateToGacha: () -> Unit,
-    onNavigateToAbout: () -> Unit,
-    onNavigateToFlashcard: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToQuiz: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val tokens by viewModel.tokens.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
-                    Text("Pusaka Kata") 
+                    Text("Pusaka Kata", style = MaterialTheme.typography.headlineMedium) 
                 },
                 actions = {
-                    IconButton(onClick = onNavigateToFlashcard) {
-                        Icon(Icons.Default.School, contentDescription = "Belajar")
-                    }
-                    IconButton(onClick = onNavigateToGacha) { 
-                        Icon(Icons.Default.Casino, contentDescription = "Gacha") 
+                    Badge(
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("$tokens 🪙", modifier = Modifier.padding(4.dp))
                     }
                     IconButton(onClick = onNavigateToSettings) { 
                         Icon(Icons.Default.Settings, contentDescription = "Pengaturan") 
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddWord,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                icon = { Icon(Icons.Default.Add, "Tambah") },
-                text = { Text("Tambah Kata") }
-            )
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Search Bar (Requirement 25%)
-            if (uiState !is HomeUiState.Loading && uiState !is HomeUiState.Error) {
-                OutlinedTextField(
-                    value = if (uiState is HomeUiState.Success) (uiState as HomeUiState.Success).searchQuery else "",
-                    onValueChange = { viewModel.onSearchQueryChange(it) },
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    placeholder = { Text("Cari pusaka atau makna...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    trailingIcon = {
-                        if (uiState is HomeUiState.Success && (uiState as HomeUiState.Success).searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Hapus")
-                            }
+            // Search Bar is now the PRIMARY ENTRY
+            OutlinedTextField(
+                value = if (uiState is HomeUiState.Success) (uiState as HomeUiState.Success).searchQuery else "",
+                onValueChange = { viewModel.onSearchQueryChange(it) },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                placeholder = { Text("Cari makna kata baru...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (uiState is HomeUiState.Success && (uiState as HomeUiState.Success).isSearching) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                    } else {
+                        IconButton(onClick = { viewModel.executeSearch() }) {
+                            Icon(Icons.Default.ArrowForward, contentDescription = "Cari Online")
                         }
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    singleLine = true
-                )
-            }
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
 
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
                     is HomeUiState.Empty -> EmptyState(
-                        message = "Belum ada kosakata.",
-                        onAction = onAddWord,
-                        actionLabel = "Mulai Tambah"
+                        message = "Belum ada riwayat pencarian. Cari kata di atas untuk memulai!",
                     )
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
                         val words = state.words
-                        if (words.isEmpty() && state.searchQuery.isNotEmpty()) {
-                            EmptyState(message = "Tidak ada hasil untuk '${state.searchQuery}'")
-                        } else {
-                            LazyColumn(
-                                contentPadding = PaddingValues(bottom = 80.dp, start = 16.dp, end = 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                item {
+                        LazyColumn(
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            item {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
                                     Button(
-                                        onClick = onNavigateToFlashcard,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                        ),
+                                        onClick = onNavigateToQuiz,
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer, contentColor = MaterialTheme.colorScheme.onSecondaryContainer),
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
-                                        Icon(Icons.Default.School, contentDescription = null)
+                                        Icon(Icons.Default.Quiz, contentDescription = null)
                                         Spacer(Modifier.width(8.dp))
-                                        Text("Asah Pusaka Hari Ini")
+                                        Text("Mulai Kuis")
+                                    }
+                                    Button(
+                                        onClick = onNavigateToGacha,
+                                        modifier = Modifier.weight(1f),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.Casino, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Gacha")
                                     }
                                 }
-                                items(words, key = { it.id }) { word ->
-                                    ItemCard(
-                                        word = word,
-                                        onClick = { onWordClick(word.id) },
-                                        onDelete = { viewModel.deleteWord(word.id) }
-                                    )
-                                }
+                            }
+                            items(words, key = { it.id }) { word ->
+                                ItemCard(
+                                    word = word,
+                                    onClick = { onWordClick(word.id) },
+                                    onDelete = { viewModel.deleteWord(word.id) }
+                                )
                             }
                         }
                     }

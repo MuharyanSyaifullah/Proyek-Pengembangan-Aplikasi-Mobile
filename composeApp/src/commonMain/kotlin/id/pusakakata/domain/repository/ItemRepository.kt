@@ -9,5 +9,13 @@ interface ItemRepository {
     suspend fun insertWord(word: Word)
     suspend fun updateWord(word: Word)
     suspend fun deleteWord(id: String)
-    suspend fun searchOnline(word: String): Result<Word>
+    suspend fun searchAndSave(word: String): Result<Word>
+    
+    // Token Logic
+    fun getTokens(): Flow<Long>
+    suspend fun addTokens(amount: Long)
+    suspend fun useToken(): Boolean
+    
+    // Quiz logic
+    suspend fun getRandomWords(limit: Long): List<Word>
 }

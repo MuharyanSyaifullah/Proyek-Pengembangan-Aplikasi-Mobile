@@ -11,11 +11,23 @@ CREATE TABLE WordEntity (
     level INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE UserStats (
+    id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+    tokens INTEGER NOT NULL DEFAULT 0
+);
+
+-- Init user stats if not exists
+INSERT OR IGNORE INTO UserStats(id, tokens) VALUES (1, 0);
+
+-- Word Queries
 getAllWords:
 SELECT * FROM WordEntity ORDER BY createdAt DESC;
 
 getWordById:
 SELECT * FROM WordEntity WHERE id = ?;
+
+getRandomWords:
+SELECT * FROM WordEntity ORDER BY RANDOM() LIMIT ?;
 
 insertWord:
 INSERT OR REPLACE INTO WordEntity(id, term, definition, category, createdAt, intervalDays, easeFactor, nextReview, level)
@@ -34,3 +46,13 @@ SET term = ?,
     nextReview = ?,
     level = ?
 WHERE id = ?;
+
+-- Token Queries
+getTokens:
+SELECT tokens FROM UserStats WHERE id = 1;
+
+addTokens:
+UPDATE UserStats SET tokens = tokens + ? WHERE id = 1;
+
+useToken:
+UPDATE UserStats SET tokens = tokens - 1 WHERE id = 1;

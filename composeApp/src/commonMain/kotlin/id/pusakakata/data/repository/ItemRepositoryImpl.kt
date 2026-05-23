@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.datetime.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class ItemRepositoryImpl(
     db: PusakaDatabase,
@@ -59,29 +62,44 @@ class ItemRepositoryImpl(
         queries.deleteWord(id)
     }
 
-    override suspend fun searchOnline(word: String): Result<Word> {
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun searchAndSave(word: String): Result<Word> {
         return try {
             val response = apiService.fetchDefinition(word)
             if (response.status && response.data != null) {
-                Result.success(
-                    Word(
-                        id = "", // ID will be generated on save
-                        term = response.data.lema,
-                        definition = response.data.arti.joinToString("\n"),
-                        category = "Umum"
-                    )
+                val newWord = Word(
+                    id = Uuid.random().toString(),
+                    term = response.data.lema,
+                    definition = response.data.arti.joinToString("\n"),
+                    category = "Umum"
                 )
+                insertWord(newWord)
+                Result.success(newWord)
             } else {
-                val errorMsg = when (response.message?.lowercase()) {
-                    "illegal input status" -> "Kata tidak ditemukan atau input tidak valid."
-                    null -> "Data tidak ditemukan."
-                    else -> response.message
-                }
-                Result.failure(Exception(errorMsg))
+                Result.failure(Exception("Kata tidak ditemukan"))
             }
         } catch (e: Exception) {
-            // Handle serialization error or network error
-            Result.failure(Exception("Gagal mengambil data. Pastikan koneksi internet aktif."))
+            Result.failure(e)
         }
+    }
+
+    override fun getTokens(): Flow<Long> {
+        return queries.getTokens().asFlow().mapToOne(Dispatchers.IO)
+    }
+
+    override suspend fun addTokens(amount: Long) {
+        queries.addTokens(amount)
+    }
+
+    override suspend fun useToken(): Boolean {
+        val current = queries.getTokens().executeAsOne()
+        return if (current > 0) {
+            queries.useToken()
+            true
+        } else false
+    }
+
+    override suspend fun getRandomWords(limit: Long): List<Word> {
+        return queries.getRandomWords(limit).executeAsList().map { it.toDomain() }
     }
 }
