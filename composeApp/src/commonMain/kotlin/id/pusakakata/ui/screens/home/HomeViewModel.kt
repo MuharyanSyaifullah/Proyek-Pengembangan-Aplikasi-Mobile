@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import id.pusakakata.domain.model.Word
 import id.pusakakata.domain.repository.ItemRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -73,9 +74,13 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
         viewModelScope.launch {
             _isSearching.value = true
             _searchError.value = null
+            
+            // Memberikan waktu bagi AI untuk "berpikir" sesuai permintaan
+            delay(5000)
+            
             repository.searchAndSave(query)
                 .onSuccess {
-                    _searchQuery.value = "" // Berhasil simpan, reset bar
+                    _searchQuery.value = "" // Clear search so the new word is visible in full list
                 }
                 .onFailure { 
                     _searchError.value = "Pusaka '$query' gagal dipanggil: ${it.message}"
