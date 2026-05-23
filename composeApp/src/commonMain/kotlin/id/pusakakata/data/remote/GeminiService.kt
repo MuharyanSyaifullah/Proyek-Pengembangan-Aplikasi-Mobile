@@ -3,24 +3,14 @@ package id.pusakakata.data.remote
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GeminiRequest(
     val contents: List<GeminiContent>,
-    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig(),
-    val safetySettings: List<SafetySetting> = listOf(
-        SafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_NONE"),
-        SafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_NONE"),
-        SafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_NONE"),
-        SafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_NONE")
-    )
+    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig()
 )
-
-@Serializable
-data class SafetySetting(val category: String, val threshold: String)
 
 @Serializable
 data class GeminiContent(
@@ -35,14 +25,14 @@ data class GeminiPart(
 
 @Serializable
 data class GeminiGenerationConfig(
-    val temperature: Double = 0.9, // Lebih kreatif agar mau menjawab kata pendek
+    val temperature: Double = 0.7,
     val maxOutputTokens: Int = 1000,
     val topP: Double = 0.95
 )
 
 @Serializable
 data class GeminiResponse(
-    val candidates: List<GeminiCandidate>? = null,
+    val candidates: List<GeminiCandidate> = emptyList(),
     val promptFeedback: GeminiPromptFeedback? = null
 )
 
@@ -62,42 +52,35 @@ class GeminiService(
     private val apiKey: String
 ) {
     suspend fun generateDefinition(word: String): String {
-        if (apiKey.isBlank()) return "API Key belum terisi di ApiConfig.kt."
+        if (apiKey.isBlank()) return "API Key belum terisi."
         
         val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
-            val httpResponse = client.post(url) {
+            val response: GeminiResponse = client.post(url) {
                 contentType(ContentType.Application.Json)
                 setBody(
                     GeminiRequest(
                         contents = listOf(
                             GeminiContent(
                                 parts = listOf(
-                                    GeminiPart(text = "Berikan makna atau sapaan puitis singkat untuk kata: $word. Jika ini sapaan, balas dengan sapaan yang hangat. Gunakan bahasa Indonesia. Teks polos saja.")
+                                    GeminiPart(text = "Berikan definisi singkat dan menarik untuk kosa kata: $word. Gunakan bahasa Indonesia. Jangan gunakan markdown.")
                                 )
                             )
                         )
                     )
                 )
-            }
+            }.body()
             
-            if (httpResponse.status.value != 200) {
-                return "AI sibuk (Error ${httpResponse.status.value}). Silakan coba kata lain."
-            }
-
-            val response: GeminiResponse = httpResponse.body()
-            val result = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            val textResult = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
             
-            if (!result.isNullOrBlank()) {
-                result.trim()
-            } else if (response.promptFeedback?.blockReason != null) {
-                "Kata ini disensor oleh AI: ${response.promptFeedback?.blockReason}"
+            if (!textResult.isNullOrBlank()) {
+                textResult.trim()
             } else {
-                "AI tidak bisa merumuskan makna untuk '$word'. Coba kata yang lebih spesifik."
+                "AI tidak bisa merumuskan makna untuk '$word'. Mungkin kata ini melanggar kebijakan keamanan."
             }
         } catch (e: Exception) {
-            "Gagal terhubung ke pusat AI: ${e.message}"
+            "Kesalahan teknis: ${e.message}"
         }
     }
 }
