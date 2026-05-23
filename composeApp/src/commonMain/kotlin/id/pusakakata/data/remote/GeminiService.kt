@@ -44,8 +44,8 @@ class GeminiService(
     suspend fun generateDefinition(word: String): String {
         if (apiKey.isBlank()) return "API Key belum terisi."
         
-        // Gunakan model gemini-pro yang paling stabil
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$apiKey"
+        // Menggunakan gemini-1.5-flash yang merupakan model default terbaru untuk v1beta
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
             val response: HttpResponse = client.post(url) {
@@ -66,7 +66,7 @@ class GeminiService(
             val responseBody = response.bodyAsText()
             
             if (response.status.value != 200) {
-                return "AI gagal merespon (Error ${response.status.value}): $responseBody"
+                return "AI gagal merespon (Status ${response.status.value}). Pesan: $responseBody"
             }
 
             val geminiResponse = json.decodeFromString<GeminiResponse>(responseBody)
@@ -75,7 +75,7 @@ class GeminiService(
             if (!resultText.isNullOrBlank()) {
                 resultText.trim()
             } else {
-                "AI tidak memberikan jawaban untuk '$word'. Coba kata lain."
+                "Pusaka '$word' belum tersedia definisinya di memori AI."
             }
         } catch (e: Exception) {
             "Gagal memanggil AI: ${e.message}"
