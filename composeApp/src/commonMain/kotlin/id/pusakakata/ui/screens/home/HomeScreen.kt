@@ -54,19 +54,19 @@ fun HomeScreen(
         }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
-            // Search Bar
+            // Search Bar - Satu-satunya cara cari/tambah
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChange(it) },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
-                placeholder = { Text("Tanyakan makna kata ke AI...") },
+                placeholder = { Text("Cari makna pusaka...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (isSearching) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp))
                     } else if (searchQuery.isNotEmpty()) {
                         IconButton(onClick = { viewModel.executeSearch() }) {
-                            Icon(Icons.Default.Send, contentDescription = "Tanya AI")
+                            Icon(Icons.Default.Send, contentDescription = "Kirim")
                         }
                     }
                 },
@@ -88,18 +88,14 @@ fun HomeScreen(
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
                     is HomeUiState.Empty -> EmptyState(
-                        message = "Pusaka masih kosong. Ketik kata di atas untuk memanggil bantuan AI!",
+                        message = "Pusaka masih kosong. Ketik kata di atas untuk mulai mencari!",
                     )
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
                         val words = state.words
                         if (words.isEmpty() && searchQuery.isNotEmpty()) {
-                            // Sesuai permintaan: Hilangkan tulisan "tidak ditemukan lokal"
-                            EmptyState(
-                                message = "Cari makna '$searchQuery' dengan bantuan AI sekarang.",
-                                onAction = { viewModel.executeSearch() },
-                                actionLabel = "Tanya AI Pusaka"
-                            )
+                            // Jika filter lokal tidak ada, beri instruksi tekan Send
+                            EmptyState(message = "Tekan ikon kirim di atas untuk mencari makna '$searchQuery' secara online.")
                         } else {
                             LazyColumn(
                                 contentPadding = PaddingValues(16.dp),
