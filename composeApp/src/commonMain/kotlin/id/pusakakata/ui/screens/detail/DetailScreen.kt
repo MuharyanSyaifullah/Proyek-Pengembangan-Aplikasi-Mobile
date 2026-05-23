@@ -3,6 +3,8 @@ package id.pusakakata.ui.screens.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,7 +20,9 @@ import id.pusakakata.ui.components.ErrorMessage
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onEdit: (String) -> Unit,
+    onDelete: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -33,8 +37,15 @@ fun DetailScreen(
                 },
                 actions = {
                     if (uiState is DetailUiState.Success) {
-                        IconButton(onClick = { /* Implement platform specific share if needed */ }) {
+                        val word = (uiState as DetailUiState.Success).word
+                        IconButton(onClick = { /* Implement share */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Bagikan")
+                        }
+                        IconButton(onClick = { onEdit(word.id) }) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        }
+                        IconButton(onClick = { onDelete(word.id); onBack() }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error)
                         }
                     }
                 }

@@ -55,9 +55,12 @@ fun AppNavHost(navController: NavHostController) {
         ) { backStackEntry ->
             val wordId = backStackEntry.arguments?.getString("wordId")!!
             val viewModel: DetailViewModel = koinViewModel { parametersOf(wordId) }
+            val homeViewModel: HomeViewModel = koinViewModel() // To access delete logic
             DetailScreen(
                 viewModel = viewModel,
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onEdit = { id -> navController.navigate(Routes.AddEdit.passId(id)) },
+                onDelete = { id -> homeViewModel.deleteWord(id) }
             )
         }
         composable(Routes.Gacha.route) {

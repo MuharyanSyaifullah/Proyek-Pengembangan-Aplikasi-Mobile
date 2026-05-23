@@ -63,7 +63,7 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
         val query = _searchQuery.value.trim()
         if (query.isBlank()) return
 
-        // Jika sudah ada di lokal, jangan panggil AI lagi, cukup bersihkan filter
+        // Jika sudah ada di lokal, jangan panggil AI lagi, cukup bersihkan filter agar item terlihat
         val alreadyExists = _cachedWords.any { it.term.equals(query, ignoreCase = true) }
         if (alreadyExists) {
             _searchQuery.value = ""
@@ -75,7 +75,7 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
             _searchError.value = null
             repository.searchAndSave(query)
                 .onSuccess {
-                    _searchQuery.value = "" // Clear search so the new word is visible in full list
+                    _searchQuery.value = "" // Berhasil simpan, reset bar
                 }
                 .onFailure { 
                     _searchError.value = "Pusaka '$query' gagal dipanggil: ${it.message}"

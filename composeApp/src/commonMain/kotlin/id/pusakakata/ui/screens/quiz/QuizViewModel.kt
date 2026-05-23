@@ -39,12 +39,13 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
             }
 
             val correctWord = allWords.random()
-            // AI-like distillation of options
-            val options = (allWords.filter { it.id != correctWord.id }
+            val otherDefinitions = allWords
+                .filter { it.id != correctWord.id }
                 .shuffled()
                 .take(2)
-                .map { it.definition } + correctWord.definition)
-                .shuffled()
+                .map { it.definition }
+            
+            val options = (otherDefinitions + correctWord.definition).shuffled()
 
             _uiState.value = QuizUiState.Question(
                 word = correctWord,
@@ -69,7 +70,7 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
     }
     
     fun updateSrsAndNext(difficulty: Int) {
-        // Here we could implement real SRS logic if needed
+        // Logika SRS sederhana bisa ditambahkan di sini
         generateQuestion()
     }
 }
