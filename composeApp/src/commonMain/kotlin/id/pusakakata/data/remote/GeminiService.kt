@@ -32,7 +32,7 @@ data class GeminiGenerationConfig(
 
 @Serializable
 data class GeminiResponse(
-    val candidates: List<GeminiCandidate>? = null,
+    val candidates: List<GeminiCandidate> = emptyList(),
     val promptFeedback: GeminiPromptFeedback? = null
 )
 
@@ -54,8 +54,8 @@ class GeminiService(
     suspend fun generateDefinition(word: String): String {
         if (apiKey.isBlank()) return "API Key belum terisi."
         
-        // Menggunakan v1 stable daripada v1beta agar lebih konsisten
-        val url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$apiKey"
+        // Gunakan v1beta kembali karena v1 terkadang lebih ketat pada filter region
+        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
             val response: GeminiResponse = client.post(url) {
@@ -65,7 +65,7 @@ class GeminiService(
                         contents = listOf(
                             GeminiContent(
                                 parts = listOf(
-                                    GeminiPart(text = "Berikan definisi singkat untuk kosa kata: $word. Gunakan bahasa Indonesia. Teks polos saja tanpa markdown.")
+                                    GeminiPart(text = "Berikan definisi singkat, padat, dan puitis untuk kosa kata: $word. Teks polos saja.")
                                 )
                             )
                         )
@@ -73,17 +73,15 @@ class GeminiService(
                 )
             }.body()
             
-            val result = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            val result = response.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
             
-            if (result != null) {
-                result
-            } else if (response.promptFeedback?.blockReason != null) {
-                "AI tidak bisa menjawab karena kebijakan keamanan: ${response.promptFeedback.blockReason}"
+            if (!result.isNullOrBlank()) {
+                result.trim()
             } else {
-                "AI tidak menemukan jawaban untuk '$word'."
+                "Pusaka '$word' memiliki makna yang terlalu dalam untuk dirumuskan saat ini."
             }
         } catch (e: Exception) {
-            "Terjadi gangguan koneksi ke AI: ${e.message}"
+            "Gagal memanggil AI: ${e.message}"
         }
     }
 }
