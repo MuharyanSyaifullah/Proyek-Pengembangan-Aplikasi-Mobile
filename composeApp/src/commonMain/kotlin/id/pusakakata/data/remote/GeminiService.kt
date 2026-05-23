@@ -9,8 +9,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GeminiRequest(
     val contents: List<GeminiContent>,
-    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig()
+    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig(),
+    val safetySettings: List<SafetySetting> = listOf(
+        SafetySetting("HARM_CATEGORY_HARASSMENT", "BLOCK_NONE"),
+        SafetySetting("HARM_CATEGORY_HATE_SPEECH", "BLOCK_NONE"),
+        SafetySetting("HARM_CATEGORY_SEXUALLY_EXPLICIT", "BLOCK_NONE"),
+        SafetySetting("HARM_CATEGORY_DANGEROUS_CONTENT", "BLOCK_NONE")
+    )
 )
+
+@Serializable
+data class SafetySetting(val category: String, val threshold: String)
 
 @Serializable
 data class GeminiContent(
@@ -54,7 +63,8 @@ class GeminiService(
     suspend fun generateDefinition(word: String): String {
         if (apiKey.isBlank()) return "API Key belum terisi."
         
-        val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
+        // Menggunakan endpoint v1 stable
+        val url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
             val response: GeminiResponse = client.post(url) {
@@ -64,7 +74,7 @@ class GeminiService(
                         contents = listOf(
                             GeminiContent(
                                 parts = listOf(
-                                    GeminiPart(text = "Berikan definisi singkat dan menarik untuk kosa kata: $word. Gunakan bahasa Indonesia. Jangan gunakan markdown.")
+                                    GeminiPart(text = "Berikan definisi singkat, padat, dan menarik untuk kosa kata: $word. Gunakan bahasa Indonesia yang baik. Jangan gunakan markdown, berikan teks polos saja.")
                                 )
                             )
                         )
@@ -77,10 +87,10 @@ class GeminiService(
             if (!textResult.isNullOrBlank()) {
                 textResult.trim()
             } else {
-                "AI tidak bisa merumuskan makna untuk '$word'. Mungkin kata ini melanggar kebijakan keamanan."
+                "AI Pusaka sedang merenungkan makna '$word'. Silakan coba kata lain atau ulangi sesaat lagi."
             }
         } catch (e: Exception) {
-            "Kesalahan teknis: ${e.message}"
+            "Gagal memanggil AI: ${e.message}"
         }
     }
 }
