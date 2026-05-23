@@ -1,16 +1,11 @@
 package id.pusakakata.ui.screens.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Casino
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -31,7 +26,8 @@ fun HomeScreen(
     onWordClick: (String) -> Unit,
     onNavigateToGacha: () -> Unit,
     onNavigateToAbout: () -> Unit,
-    onNavigateToFlashcard: () -> Unit
+    onNavigateToFlashcard: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -39,7 +35,7 @@ fun HomeScreen(
         topBar = {
             TopAppBar(
                 title = { 
-                    Text("Pusaka Kata", style = MaterialTheme.typography.headlineMedium) 
+                    Text("Pusaka Kata") 
                 },
                 actions = {
                     IconButton(onClick = onNavigateToFlashcard) {
@@ -48,8 +44,8 @@ fun HomeScreen(
                     IconButton(onClick = onNavigateToGacha) { 
                         Icon(Icons.Default.Casino, contentDescription = "Gacha") 
                     }
-                    IconButton(onClick = onNavigateToAbout) { 
-                        Icon(Icons.Default.Info, contentDescription = "Tentang") 
+                    IconButton(onClick = onNavigateToSettings) { 
+                        Icon(Icons.Default.Settings, contentDescription = "Pengaturan") 
                     }
                 }
             )
@@ -64,42 +60,68 @@ fun HomeScreen(
             )
         }
     ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
-            when (val state = uiState) {
-                is HomeUiState.Loading -> LoadingIndicator()
-                is HomeUiState.Empty -> EmptyState(
-                    message = "Belum ada kosakata.",
-                    onAction = onAddWord,
-                    actionLabel = "Mulai Tambah"
-                )
-                is HomeUiState.Error -> ErrorMessage(message = state.message)
-                is HomeUiState.Success -> {
-                    val words = state.words
-                    LazyColumn(
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        item {
-                            Button(
-                                onClick = onNavigateToFlashcard,
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Icon(Icons.Default.School, contentDescription = null)
-                                Spacer(Modifier.width(8.dp))
-                                Text("Asah Pusaka Hari Ini")
+        Column(modifier = Modifier.padding(padding).fillMaxSize()) {
+            // Search Bar (Requirement 25%)
+            if (uiState !is HomeUiState.Loading && uiState !is HomeUiState.Error) {
+                OutlinedTextField(
+                    value = if (uiState is HomeUiState.Success) (uiState as HomeUiState.Success).searchQuery else "",
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    placeholder = { Text("Cari pusaka atau makna...") },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    trailingIcon = {
+                        if (uiState is HomeUiState.Success && (uiState as HomeUiState.Success).searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Hapus")
                             }
                         }
-                        items(words, key = { it.id }) { word ->
-                            ItemCard(
-                                word = word,
-                                onClick = { onWordClick(word.id) },
-                                onDelete = { viewModel.deleteWord(word.id) }
-                            )
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true
+                )
+            }
+
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                when (val state = uiState) {
+                    is HomeUiState.Loading -> LoadingIndicator()
+                    is HomeUiState.Empty -> EmptyState(
+                        message = "Belum ada kosakata.",
+                        onAction = onAddWord,
+                        actionLabel = "Mulai Tambah"
+                    )
+                    is HomeUiState.Error -> ErrorMessage(message = state.message)
+                    is HomeUiState.Success -> {
+                        val words = state.words
+                        if (words.isEmpty() && state.searchQuery.isNotEmpty()) {
+                            EmptyState(message = "Tidak ada hasil untuk '${state.searchQuery}'")
+                        } else {
+                            LazyColumn(
+                                contentPadding = PaddingValues(bottom = 80.dp, start = 16.dp, end = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                item {
+                                    Button(
+                                        onClick = onNavigateToFlashcard,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                        ),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Icon(Icons.Default.School, contentDescription = null)
+                                        Spacer(Modifier.width(8.dp))
+                                        Text("Asah Pusaka Hari Ini")
+                                    }
+                                }
+                                items(words, key = { it.id }) { word ->
+                                    ItemCard(
+                                        word = word,
+                                        onClick = { onWordClick(word.id) },
+                                        onDelete = { viewModel.deleteWord(word.id) }
+                                    )
+                                }
+                            }
                         }
                     }
                 }

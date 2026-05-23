@@ -30,6 +30,22 @@ Aplikasi ini menggunakan standar **Modern Android & iOS Development**:
 * **Concurrency:** Kotlin Coroutines & Flow
 * **CI/CD:** GitHub Actions
 
+## 🌐 API Documentation
+Aplikasi ini mengintegrasikan layanan KBBI untuk memperkaya basis data kosa kata pengguna:
+- **Provider**: Unofficial KBBI API (Vercel)
+- **Endpoint**: `https://api-kbbi.vercel.app/api/kbbi?text={word}`
+- **Method**: GET
+- **Format**: JSON
+- **Fitur**: Pencarian definisi kata, lema, dan arti dalam bahasa Indonesia.
+
+## 📱 Fitur Lanjutan (Sprint 3)
+- **Search & Filter (25%)**: Pencarian responsif pada daftar kosa kata lokal.
+- **REST API Integration (25%)**: Menggunakan Ktor untuk mengambil data KBBI secara online.
+- **Offline Support (20%)**: Mendukung penggunaan penuh tanpa internet dengan data lokal SQLDelight.
+- **Settings Screen (15%)**: Layar pengaturan fungsional untuk navigasi dan preferensi.
+- **Share Feature (+3% Bonus)**: Berbagi definisi kata langsung dari aplikasi.
+- **Gamification (15% Bonus)**: Sistem Gacha Kartu Pusaka Nusantara.
+
 ---
 
 ## 📂 Struktur Proyek (Clean Architecture)

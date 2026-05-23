@@ -16,6 +16,7 @@ import id.pusakakata.ui.screens.gacha.GachaViewModel
 import id.pusakakata.ui.screens.about.AboutScreen
 import id.pusakakata.ui.screens.flashcard.FlashcardScreen
 import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
+import id.pusakakata.ui.screens.settings.SettingsScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -33,7 +34,8 @@ fun AppNavHost(navController: NavHostController) {
                 onWordClick = { id -> navController.navigate(Routes.Detail.passId(id)) },
                 onNavigateToGacha = { navController.navigate(Routes.Gacha.route) },
                 onNavigateToAbout = { navController.navigate(Routes.About.route) },
-                onNavigateToFlashcard = { navController.navigate(Routes.Flashcard.route) }
+                onNavigateToFlashcard = { navController.navigate(Routes.Flashcard.route) },
+                onNavigateToSettings = { navController.navigate(Routes.Settings.route) }
             )
         }
         composable(
@@ -68,6 +70,12 @@ fun AppNavHost(navController: NavHostController) {
         }
         composable(Routes.About.route) {
             AboutScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Routes.Settings.route) {
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onNavigateToAbout = { navController.navigate(Routes.About.route) }
+            )
         }
         composable(Routes.Flashcard.route) {
             val viewModel: FlashcardViewModel = koinViewModel()

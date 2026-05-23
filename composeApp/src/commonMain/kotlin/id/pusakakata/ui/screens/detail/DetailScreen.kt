@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,7 +35,11 @@ fun DetailScreen(
                 },
                 actions = {
                     if (uiState is DetailUiState.Success) {
-                        IconButton(onClick = { onEdit((uiState as DetailUiState.Success).word.id) }) {
+                        val word = (uiState as DetailUiState.Success).word
+                        IconButton(onClick = { /* Share logic handled by platform or UI */ }) {
+                            Icon(Icons.Default.Share, contentDescription = "Bagikan")
+                        }
+                        IconButton(onClick = { onEdit(word.id) }) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit")
                         }
                     }
