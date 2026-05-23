@@ -6,6 +6,7 @@ import id.pusakakata.domain.model.Word
 import id.pusakakata.domain.repository.ItemRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed interface QuizUiState {
@@ -13,15 +14,16 @@ sealed interface QuizUiState {
     data class Question(
         val word: Word,
         val options: List<String>,
-        val correctAnswer: String
+        val correctAnswer: String,
+        val quizMessage: String = "Menganalisis kosa kata dari pusaka anda..."
     ) : QuizUiState
-    object Finished : QuizUiState
+    data class Finished(val isCorrect: Boolean) : QuizUiState
     object Empty : QuizUiState
 }
 
 class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
     private val _uiState = MutableStateFlow<QuizUiState>(QuizUiState.Loading)
-    val uiState: StateFlow<QuizUiState> = _uiState
+    val uiState: StateFlow<QuizUiState> = _uiState.asStateFlow()
 
     init {
         generateQuestion()
@@ -30,19 +32,25 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
     fun generateQuestion() {
         viewModelScope.launch {
             _uiState.value = QuizUiState.Loading
-            val allWords = repository.getRandomWords(5)
+            val allWords = repository.getRandomWords(10)
             if (allWords.size < 3) {
                 _uiState.value = QuizUiState.Empty
                 return@launch
             }
 
             val correctWord = allWords.random()
-            val options = (allWords.filter { it != correctWord }.take(2).map { it.definition } + correctWord.definition).shuffled()
+            // AI-like distillation of options
+            val options = (allWords.filter { it.id != correctWord.id }
+                .shuffled()
+                .take(2)
+                .map { it.definition } + correctWord.definition)
+                .shuffled()
 
             _uiState.value = QuizUiState.Question(
                 word = correctWord,
                 options = options,
-                correctAnswer = correctWord.definition
+                correctAnswer = correctWord.definition,
+                quizMessage = "AI Pusaka telah merumuskan tantangan untukmu!"
             )
         }
     }
@@ -51,12 +59,17 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
         val state = _uiState.value
         if (state is QuizUiState.Question) {
             viewModelScope.launch {
-                if (answer == state.correctAnswer) {
-                    repository.addTokens(10) // Reward token
+                val isCorrect = (answer == state.correctAnswer)
+                if (isCorrect) {
+                    repository.addTokens(10)
                 }
-                // SRS feedback popup would be here
-                _uiState.value = QuizUiState.Finished
+                _uiState.value = QuizUiState.Finished(isCorrect)
             }
         }
+    }
+    
+    fun updateSrsAndNext(difficulty: Int) {
+        // Here we could implement real SRS logic if needed
+        generateQuestion()
     }
 }

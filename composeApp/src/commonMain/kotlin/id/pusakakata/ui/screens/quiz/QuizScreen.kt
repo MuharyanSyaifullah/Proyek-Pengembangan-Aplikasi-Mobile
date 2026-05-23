@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import id.pusakakata.ui.components.EmptyState
 import id.pusakakata.ui.components.LoadingIndicator
@@ -18,13 +19,11 @@ fun QuizScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var showSrsPopup by remember { mutableStateOf(false) }
-    var lastAnswerResult by remember { mutableStateOf<Boolean?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kuis Pusaka") },
+                title = { Text("Kuis Pusaka AI") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -37,74 +36,77 @@ fun QuizScreen(
             when (val state = uiState) {
                 is QuizUiState.Loading -> LoadingIndicator()
                 is QuizUiState.Empty -> EmptyState(
-                    message = "Cari minimal 3 kata dulu di beranda untuk memulai kuis!",
+                    message = "Pusaka anda belum cukup kuat. Cari minimal 3 kata di beranda untuk memulai kuis!",
                     onAction = onBack,
-                    actionLabel = "Kembali"
+                    actionLabel = "Kembali ke Beranda"
                 )
                 is QuizUiState.Question -> {
                     Column(
                         modifier = Modifier.fillMaxSize().padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text(
+                            state.quizMessage, 
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Spacer(Modifier.height(16.dp))
                         Text("Apa arti dari kata:", style = MaterialTheme.typography.titleMedium)
                         Text(
                             state.word.term,
                             style = MaterialTheme.typography.displayMedium,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
                         )
                         Spacer(Modifier.height(32.dp))
 
                         state.options.forEach { option ->
-                            Button(
-                                onClick = { 
-                                    lastAnswerResult = (option == state.correctAnswer)
-                                    viewModel.submitAnswer(option)
-                                    showSrsPopup = true
-                                },
+                            OutlinedButton(
+                                onClick = { viewModel.submitAnswer(option) },
                                 modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceVariant, 
-                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                shape = MaterialTheme.shapes.medium
                             ) {
-                                Text(option, modifier = Modifier.padding(8.dp))
+                                Text(option, modifier = Modifier.padding(8.dp), textAlign = TextAlign.Center)
                             }
                         }
                     }
                 }
                 is QuizUiState.Finished -> {
-                    if (showSrsPopup) {
-                        AlertDialog(
-                            onDismissRequest = { /* Force selection */ },
-                            title = { 
-                                Text(if (lastAnswerResult == true) "Jawaban Benar! 🎉" else "Jawaban Salah ❌")
-                            },
-                            text = { 
-                                Column {
-                                    Text(if (lastAnswerResult == true) "Selamat! Anda mendapat +10 Token." else "Tetap semangat belajar!")
-                                    Spacer(Modifier.height(16.dp))
-                                    Text("Seberapa sulit kata ini bagi Anda?", style = MaterialTheme.typography.labelLarge)
-                                }
-                            },
-                            confirmButton = {
-                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Button(
-                                        onClick = { viewModel.generateQuestion(); showSrsPopup = false },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text("Mudah") }
-                                    Button(
-                                        onClick = { viewModel.generateQuestion(); showSrsPopup = false },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text("Sedang") }
-                                    Button(
-                                        onClick = { viewModel.generateQuestion(); showSrsPopup = false },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) { Text("Susah") }
-                                }
+                    AlertDialog(
+                        onDismissRequest = { /* Force selection */ },
+                        title = { 
+                            Text(if (state.isCorrect) "Jawaban Benar! 🎉" else "Jawaban Kurang Tepat ❌")
+                        },
+                        text = { 
+                            Column {
+                                Text(if (state.isCorrect) "Selamat! Anda mendapat +10 Token untuk Gacha." else "Jangan menyerah, terus asah ingatan anda!")
+                                Spacer(Modifier.height(16.dp))
+                                Text("Seberapa sulit tantangan ini bagi Anda?", style = MaterialTheme.typography.labelLarge)
                             }
-                        )
-                    }
+                        },
+                        confirmButton = {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = { viewModel.updateSrsAndNext(1) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                ) { Text("Mudah") }
+                                Button(
+                                    onClick = { viewModel.updateSrsAndNext(2) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                                ) { Text("Sedang") }
+                                Button(
+                                    onClick = { viewModel.updateSrsAndNext(3) },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                                ) { Text("Susah") }
+                            }
+                        }
+                    )
                 }
             }
         }
