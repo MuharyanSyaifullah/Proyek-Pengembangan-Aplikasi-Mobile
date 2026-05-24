@@ -119,7 +119,16 @@ fun HomeScreen(
         if (showAiResult != null) {
             AlertDialog(
                 onDismissRequest = { showAiResult = null },
-                title = { Text("Makna dari AI Pusaka ✨") },
+                title = { 
+                    Column {
+                        Text(
+                            text = showAiResult!!.category,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                        Text("Makna dari AI Pusaka ✨") 
+                    }
+                },
                 text = {
                     Column {
                         Text(showAiResult!!.term, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)

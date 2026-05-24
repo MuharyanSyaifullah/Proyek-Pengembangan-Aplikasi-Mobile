@@ -10,6 +10,7 @@ interface ItemRepository {
     suspend fun updateWord(word: Word)
     suspend fun deleteWord(id: String)
     suspend fun searchAndSave(word: String): Result<Word>
+    suspend fun getAiDefinition(word: String): Result<String>
     
     // Token Logic
     fun getTokens(): Flow<Long>

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.map
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.datetime.Clock
@@ -67,28 +69,37 @@ class ItemRepositoryImpl(
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun searchAndSave(word: String): Result<Word> {
         return try {
-            // Coba Kamus Resmi dulu
-            val response = try { 
-                apiService.fetchDefinition(word) 
-            } catch (e: Exception) { 
-                null 
-            }
+            val rawResponse = getAiDefinition(word).getOrThrow()
             
-            val definition = if (response != null && response.status && response.data != null) {
-                response.data.arti.joinToString("\n")
-            } else {
-                // Jika tidak ada di kamus atau API error, Tanya AI
-                geminiService.generateDefinition(word)
+            var definition = rawResponse
+            var category = "Umum"
+
+            try {
+                val parsed = Json { ignoreUnknownKeys = true }.decodeFromString<id.pusakakata.ui.screens.addedit.AiResponse>(rawResponse)
+                definition = parsed.definition
+                val cat = parsed.category
+                category = if (cat == "Umum" || cat == "Sastra" || cat == "Arkais") cat else "Umum"
+            } catch (e: Exception) {
+                // Gunakan default jika parsing gagal
             }
 
             val newWord = Word(
                 id = Uuid.random().toString(),
-                term = response?.data?.lema ?: word.replaceFirstChar { it.uppercase() },
+                term = word.replaceFirstChar { it.uppercase() },
                 definition = definition,
-                category = if (response?.status == true) "Baku" else "AI"
+                category = category
             )
             insertWord(newWord)
             Result.success(newWord)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getAiDefinition(word: String): Result<String> {
+        return try {
+            val response = geminiService.generateDefinition(word)
+            Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }

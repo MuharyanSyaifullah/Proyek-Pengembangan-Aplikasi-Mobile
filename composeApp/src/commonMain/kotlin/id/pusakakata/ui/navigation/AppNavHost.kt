@@ -32,6 +32,7 @@ fun AppNavHost(navController: NavHostController) {
             val viewModel: HomeViewModel = koinViewModel()
             HomeScreen(
                 viewModel = viewModel,
+                onAddWord = { navController.navigate(Routes.AddEdit.passId()) },
                 onWordClick = { id -> navController.navigate(Routes.Detail.passId(id)) },
                 onNavigateToGacha = { navController.navigate(Routes.Gacha.route) },
                 onNavigateToSettings = { navController.navigate(Routes.Settings.route) },

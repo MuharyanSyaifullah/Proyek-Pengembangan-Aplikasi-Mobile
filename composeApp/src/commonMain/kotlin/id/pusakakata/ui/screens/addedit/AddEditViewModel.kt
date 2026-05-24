@@ -12,6 +12,12 @@ import kotlinx.coroutines.launch
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class AiResponse(val definition: String, val category: String)
+
 class AddEditViewModel(
     private val repository: ItemRepository,
     private val wordId: String?
@@ -60,13 +66,24 @@ class AddEditViewModel(
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.searchAndSave(term)
-                .onSuccess { word ->
-                    _uiState.update { 
-                        it.copy(
-                            definition = word.definition,
-                            isLoading = false
-                        )
+            repository.getAiDefinition(term)
+                .onSuccess { rawResponse ->
+                    try {
+                        val parsed = Json { ignoreUnknownKeys = true }.decodeFromString<AiResponse>(rawResponse)
+                        _uiState.update { 
+                            it.copy(
+                                definition = parsed.definition,
+                                category = if (parsed.category in listOf("Umum", "Sastra", "Arkais")) parsed.category else "Umum",
+                                isLoading = false
+                            )
+                        }
+                    } catch (e: Exception) {
+                        _uiState.update { 
+                            it.copy(
+                                definition = rawResponse,
+                                isLoading = false
+                            )
+                        }
                     }
                 }
                 .onFailure { e ->
