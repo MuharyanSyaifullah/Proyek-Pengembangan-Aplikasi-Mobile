@@ -60,14 +60,14 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
         _searchError.value = null
     }
 
-    fun executeSearch() {
+    fun executeSearch(onSuccess: (Word) -> Unit) {
         val query = _searchQuery.value.trim()
         if (query.isBlank()) return
 
-        // Jika sudah ada di lokal, jangan panggil AI lagi, cukup bersihkan filter agar item terlihat
-        val alreadyExists = _cachedWords.any { it.term.equals(query, ignoreCase = true) }
-        if (alreadyExists) {
+        val alreadyExists = _cachedWords.find { it.term.equals(query, ignoreCase = true) }
+        if (alreadyExists != null) {
             _searchQuery.value = ""
+            onSuccess(alreadyExists) // Show existing summary as pop-up too
             return
         }
 
@@ -75,15 +75,15 @@ class HomeViewModel(private val repository: ItemRepository) : ViewModel() {
             _isSearching.value = true
             _searchError.value = null
             
-            // Memberikan waktu bagi AI untuk "berpikir" sesuai permintaan
-            delay(5000)
+            delay(1500) // "Thinking" delay
             
             repository.searchAndSave(query)
-                .onSuccess {
-                    _searchQuery.value = "" // Clear search so the new word is visible in full list
+                .onSuccess { word ->
+                    _searchQuery.value = "" 
+                    onSuccess(word)
                 }
                 .onFailure { 
-                    _searchError.value = "Pusaka '$query' gagal dipanggil: ${it.message}"
+                    _searchError.value = "AI Pusaka gagal memanggil makna: ${it.message}"
                 }
             _isSearching.value = false
         }

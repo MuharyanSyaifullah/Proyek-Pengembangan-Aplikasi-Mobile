@@ -3,68 +3,45 @@ package id.pusakakata.data.remote
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 data class GeminiRequest(
-    val contents: List<GeminiContent>,
-    val generationConfig: GeminiGenerationConfig = GeminiGenerationConfig()
+    val contents: List<GeminiContent>
 )
 
 @Serializable
 data class GeminiContent(
-    val parts: List<GeminiPart>,
-    val role: String? = null
+    val parts: List<GeminiPart>
 )
 
 @Serializable
 data class GeminiPart(
-    val text: String? = null
-)
-
-@Serializable
-data class GeminiGenerationConfig(
-    val temperature: Double = 0.7,
-    val maxOutputTokens: Int = 1000,
-    val topP: Double = 0.95
+    val text: String
 )
 
 @Serializable
 data class GeminiResponse(
-    val candidates: List<GeminiCandidate> = emptyList(),
-    val promptFeedback: GeminiPromptFeedback? = null
+    val candidates: List<GeminiCandidate>? = null
 )
 
 @Serializable
 data class GeminiCandidate(
-    val content: GeminiContent? = null,
-    val finishReason: String? = null
-)
-
-@Serializable
-data class GeminiPromptFeedback(
-    val blockReason: String? = null
+    val content: GeminiContent? = null
 )
 
 class GeminiService(
     private val client: HttpClient,
     private val apiKey: String
 ) {
-    private val jsonParser = Json { 
-        ignoreUnknownKeys = true 
-        coerceInputValues = true
-    }
-
     suspend fun generateDefinition(word: String): String {
         if (apiKey.isBlank()) return "API Key belum terisi."
         
         val url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$apiKey"
         
         return try {
-            val response: HttpResponse = client.post(url) {
+            val response: GeminiResponse = client.post(url) {
                 contentType(ContentType.Application.Json)
                 setBody(
                     GeminiRequest(
@@ -77,24 +54,17 @@ class GeminiService(
                         )
                     )
                 )
-            }
+            }.body()
             
-            val responseBody = response.bodyAsText()
+            val result = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
             
-            if (response.status.value != 200) {
-                return "Error ${response.status.value}: $responseBody"
-            }
-
-            val geminiResponse = jsonParser.decodeFromString<GeminiResponse>(responseBody)
-            val resultText = geminiResponse.candidates.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            
-            if (!resultText.isNullOrBlank()) {
-                resultText.trim()
+            if (!result.isNullOrBlank()) {
+                result.trim()
             } else {
-                "AI tidak memberikan respon (Empty Result)."
+                "AI tidak memberikan respon untuk '$word'."
             }
         } catch (e: Exception) {
-            "Kesalahan: ${e.message}"
+            "Gagal memanggil AI: ${e.message}"
         }
     }
 }
