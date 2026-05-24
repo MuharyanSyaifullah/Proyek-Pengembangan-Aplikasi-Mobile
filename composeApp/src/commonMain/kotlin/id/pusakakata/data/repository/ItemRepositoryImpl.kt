@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.map
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
 import app.cash.sqldelight.coroutines.mapToOne
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.plus
@@ -26,6 +29,49 @@ class ItemRepositoryImpl(
     private val geminiService: GeminiService
 ) : ItemRepository {
     private val queries = db.pusakaDatabaseQueries
+    private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    init {
+        // Pre-populate database with 15 sample words if empty
+        repositoryScope.launch {
+            val currentCount = queries.getAllWords().executeAsList().size.toLong()
+            if (currentCount == 0L) {
+                getInitialWords().forEach { word ->
+                    queries.insertWord(
+                        id = word.id,
+                        term = word.term,
+                        definition = word.definition,
+                        category = word.category,
+                        example = word.example,
+                        createdAt = Clock.System.now().toEpochMilliseconds(),
+                        intervalDays = 0,
+                        easeFactor = 2.5,
+                        nextReview = null,
+                        level = 0
+                    )
+                }
+                queries.addTokens(50) // Give some initial tokens
+            }
+        }
+    }
+
+    private fun getInitialWords(): List<Word> = listOf(
+        Word("init_1", "Sasmita", "Isyarat, tanda, atau rahasia yang tersembunyi.", "Arkais", "Alam semesta sering memberikan sasmita sebelum badai besar datang."),
+        Word("init_2", "Meraki", "Melakukan sesuatu dengan segenap jiwa, kreativitas, dan cinta.", "Umum", "Setiap bait puisinya ia tulis dengan meraki, seolah dunianya ada di sana."),
+        Word("init_3", "Nirwana", "Keadaan tanpa penderitaan; surga atau tempat kebahagiaan sempurna.", "Sastra", "Ketenangan di puncak gunung ini terasa seperti nirwana yang nyata."),
+        Word("init_4", "Cakrawala", "Kaki langit, atau batas pandangan; juga berarti luasnya pengetahuan.", "Umum", "Bacalah buku agar cakrawala pemikiranmu terbuka lebar."),
+        Word("init_5", "Sandyakala", "Waktu senja saat matahari terbenam, sering dikaitkan dengan keindahan mistis.", "Arkais", "Burung-burung terbang kembali ke sarangnya saat sandyakala menyapa."),
+        Word("init_6", "Pancarona", "Bermacam-macam warna; berwarna-warni atau penuh keragaman.", "Sastra", "Taman bunga di lereng bukit itu menyajikan pemandangan pancarona."),
+        Word("init_7", "Renjana", "Rasa hati yang kuat, rindu yang mendalam, atau cinta kasih yang membara.", "Sastra", "Ia menulis surat itu dengan renjana yang tak sanggup lagi ia bendung."),
+        Word("init_8", "Atma", "Jiwa atau nyawa; inti dari kehidupan manusia.", "Arkais", "Musik yang indah itu mampu menyentuh relung atma yang paling dalam."),
+        Word("init_9", "Jatmika", "Sopan santun; perilaku yang tenang dan berwibawa.", "Arkais", "Pemuda itu sangat jatmika, membuat semua orang di desa menghormatinya."),
+        Word("init_10", "Candala", "Merasa rendah diri atau merasa diri kurang berharga.", "Arkais", "Jangan pernah merasa candala di hadapan mereka yang hanya memandang harta."),
+        Word("init_11", "Aksara", "Sistem tulisan; huruf atau lambang bunyi.", "Umum", "Setiap aksara yang terukir di prasasti itu menyimpan sejarah bangsa."),
+        Word("init_12", "Bestari", "Luas dan dalam pengetahuannya; berpendidikan baik.", "Sastra", "Seorang pemimpin haruslah bestari agar bijak dalam mengambil keputusan."),
+        Word("init_13", "Kirana", "Sinar yang cantik dan molek; cahaya yang membawa keindahan.", "Sastra", "Wajahnya bersinar seperti kirana rembulan di malam yang sunyi."),
+        Word("init_14", "Nirmala", "Tanpa cacat; bersih, suci, atau tidak bernoda.", "Sastra", "Hatinya nirmala, selalu tulus membantu sesama tanpa pamrih."),
+        Word("init_15", "Abisatya", "Teman yang setia; kesetiaan yang luar biasa.", "Arkais", "Ia membuktikan diri sebagai abisatya yang tak pernah pergi saat badai menerjang.")
+    )
 
     override fun getAllWords(): Flow<List<Word>> {
         return queries.getAllWords().asFlow().mapToList(Dispatchers.IO).map { entities ->
