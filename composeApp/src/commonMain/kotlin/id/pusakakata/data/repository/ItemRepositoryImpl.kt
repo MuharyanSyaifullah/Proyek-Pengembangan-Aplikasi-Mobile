@@ -15,6 +15,8 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -41,6 +43,7 @@ class ItemRepositoryImpl(
             term = word.term,
             definition = word.definition,
             category = word.category,
+            example = word.example,
             createdAt = Clock.System.now().toEpochMilliseconds(),
             intervalDays = word.srsData.intervalDays.toLong(),
             easeFactor = word.srsData.easeFactor,
@@ -54,6 +57,7 @@ class ItemRepositoryImpl(
             term = word.term,
             definition = word.definition,
             category = word.category,
+            example = word.example,
             intervalDays = word.srsData.intervalDays.toLong(),
             easeFactor = word.srsData.easeFactor,
             nextReview = word.srsData.nextReview?.toEpochMilliseconds(),
@@ -66,6 +70,34 @@ class ItemRepositoryImpl(
         queries.deleteWord(id)
     }
 
+    override suspend fun updateSrs(wordId: String, quality: Int) {
+        val word = getWordById(wordId) ?: return
+        val srs = word.srsData
+        
+        // SM-2 Algorithm logic
+        val newEaseFactor = (srs.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
+            .coerceAtLeast(1.3)
+        
+        val newInterval = when {
+            quality < 3 -> 1
+            srs.intervalDays == 0 -> 1
+            srs.intervalDays == 1 -> 6
+            else -> (srs.intervalDays * newEaseFactor).toInt()
+        }
+        
+        val nextReview = Clock.System.now().plus(newInterval, DateTimeUnit.DAY, kotlinx.datetime.TimeZone.currentSystemDefault())
+        
+        val updatedWord = word.copy(
+            srsData = srs.copy(
+                intervalDays = newInterval,
+                easeFactor = newEaseFactor,
+                nextReview = nextReview,
+                level = if (quality >= 3) srs.level + 1 else 0
+            )
+        )
+        updateWord(updatedWord)
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun searchAndSave(word: String): Result<Word> {
         return try {
@@ -73,12 +105,14 @@ class ItemRepositoryImpl(
             
             var definition = rawResponse
             var category = "Umum"
+            var example = ""
 
             try {
                 val parsed = Json { ignoreUnknownKeys = true }.decodeFromString<id.pusakakata.ui.screens.addedit.AiResponse>(rawResponse)
                 definition = parsed.definition
                 val cat = parsed.category
                 category = if (cat == "Umum" || cat == "Sastra" || cat == "Arkais") cat else "Umum"
+                example = parsed.example
             } catch (e: Exception) {
                 // Gunakan default jika parsing gagal
             }
@@ -87,7 +121,8 @@ class ItemRepositoryImpl(
                 id = Uuid.random().toString(),
                 term = word.replaceFirstChar { it.uppercase() },
                 definition = definition,
-                category = category
+                category = category,
+                example = example
             )
             insertWord(newWord)
             Result.success(newWord)

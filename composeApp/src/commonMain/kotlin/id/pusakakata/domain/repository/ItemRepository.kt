@@ -8,6 +8,7 @@ interface ItemRepository {
     suspend fun getWordById(id: String): Word?
     suspend fun insertWord(word: Word)
     suspend fun updateWord(word: Word)
+    suspend fun updateSrs(wordId: String, quality: Int)
     suspend fun deleteWord(id: String)
     suspend fun searchAndSave(word: String): Result<Word>
     suspend fun getAiDefinition(word: String): Result<String>

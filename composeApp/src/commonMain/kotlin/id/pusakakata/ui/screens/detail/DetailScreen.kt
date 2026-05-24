@@ -98,6 +98,20 @@ fun DetailScreen(
                             text = word.definition,
                             style = MaterialTheme.typography.bodyLarge
                         )
+
+                        if (word.example.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Contoh Kalimat:",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Text(
+                                text = "\"${word.example}\"",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                            )
+                        }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         

@@ -168,12 +168,34 @@ fun AddEditScreen(
                         label = { Text("Definisi Lengkap") },
                         placeholder = { Text("Jelaskan makna kata ini atau cari online...") },
                         modifier = Modifier.fillMaxWidth(),
-                        minLines = 5,
+                        minLines = 3,
                         shape = RoundedCornerShape(12.dp),
                         leadingIcon = { 
                             Icon(Icons.Default.HistoryEdu, contentDescription = null)
                         },
                         isError = state.definition.isBlank() && state.definition.isNotEmpty()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        "Contoh Penggunaan",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    OutlinedTextField(
+                        value = state.example,
+                        onValueChange = { viewModel.onExampleChange(it) },
+                        label = { Text("Contoh Kalimat") },
+                        placeholder = { Text("AI akan membantu membuatkan contoh...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2,
+                        shape = RoundedCornerShape(12.dp),
+                        leadingIcon = { 
+                            Icon(Icons.Default.AutoStories, contentDescription = null)
+                        }
                     )
                 }
 

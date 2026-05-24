@@ -10,6 +10,7 @@ fun WordEntity.toDomain() = Word(
     term = term,
     definition = definition,
     category = category,
+    example = example,
     srsData = SRSData(
         intervalDays = intervalDays.toInt(),
         easeFactor = easeFactor,

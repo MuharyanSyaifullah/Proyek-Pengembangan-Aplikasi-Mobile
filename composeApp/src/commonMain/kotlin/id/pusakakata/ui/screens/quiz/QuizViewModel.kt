@@ -63,6 +63,11 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
                 val isCorrect = (answer == state.correctAnswer)
                 if (isCorrect) {
                     repository.addTokens(10)
+                    // Update SRS jika benar (Quality 4 = Berhasil)
+                    repository.updateSrs(state.word.id, 4)
+                } else {
+                    // Update SRS jika salah (Quality 1 = Gagal)
+                    repository.updateSrs(state.word.id, 1)
                 }
                 _uiState.value = QuizUiState.Finished(isCorrect)
             }
@@ -70,7 +75,7 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
     }
     
     fun updateSrsAndNext(difficulty: Int) {
-        // Logika SRS sederhana bisa ditambahkan di sini
+        // Diganti dengan submitAnswer yang lebih otomatis
         generateQuestion()
     }
 }

@@ -3,6 +3,7 @@ CREATE TABLE WordEntity (
     term TEXT NOT NULL,
     definition TEXT NOT NULL,
     category TEXT NOT NULL,
+    example TEXT NOT NULL DEFAULT '',
     createdAt INTEGER NOT NULL,
     -- SRS Fields
     intervalDays INTEGER NOT NULL DEFAULT 0,
@@ -30,8 +31,8 @@ getRandomWords:
 SELECT * FROM WordEntity ORDER BY RANDOM() LIMIT ?;
 
 insertWord:
-INSERT OR REPLACE INTO WordEntity(id, term, definition, category, createdAt, intervalDays, easeFactor, nextReview, level)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO WordEntity(id, term, definition, category, example, createdAt, intervalDays, easeFactor, nextReview, level)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteWord:
 DELETE FROM WordEntity WHERE id = ?;
@@ -41,6 +42,7 @@ UPDATE WordEntity
 SET term = ?,
     definition = ?,
     category = ?,
+    example = ?,
     intervalDays = ?,
     easeFactor = ?,
     nextReview = ?,

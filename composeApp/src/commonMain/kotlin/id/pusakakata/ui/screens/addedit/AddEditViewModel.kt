@@ -16,7 +16,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AiResponse(val definition: String, val category: String)
+data class AiResponse(val definition: String, val category: String, val example: String = "")
 
 class AddEditViewModel(
     private val repository: ItemRepository,
@@ -41,6 +41,7 @@ class AddEditViewModel(
                         term = word.term,
                         definition = word.definition,
                         category = word.category,
+                        example = word.example,
                         isLoading = false
                     )
                 }
@@ -54,6 +55,10 @@ class AddEditViewModel(
 
     fun onDefinitionChange(newDef: String) {
         _uiState.update { it.copy(definition = newDef) }
+    }
+
+    fun onExampleChange(newExample: String) {
+        _uiState.update { it.copy(example = newExample) }
     }
 
     fun onCategoryChange(newCat: String) {
@@ -74,6 +79,7 @@ class AddEditViewModel(
                             it.copy(
                                 definition = parsed.definition,
                                 category = if (parsed.category in listOf("Umum", "Sastra", "Arkais")) parsed.category else "Umum",
+                                example = parsed.example,
                                 isLoading = false
                             )
                         }
@@ -102,7 +108,8 @@ class AddEditViewModel(
                 id = wordId ?: Uuid.random().toString(),
                 term = currentState.term.trim(),
                 definition = currentState.definition.trim(),
-                category = currentState.category.trim()
+                category = currentState.category.trim(),
+                example = currentState.example.trim()
             )
             try {
                 if (wordId == null) {

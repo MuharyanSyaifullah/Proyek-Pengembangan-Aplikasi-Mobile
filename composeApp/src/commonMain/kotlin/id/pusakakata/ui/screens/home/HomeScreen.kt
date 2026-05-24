@@ -134,6 +134,13 @@ fun HomeScreen(
                         Text(showAiResult!!.term, style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.height(8.dp))
                         Text(showAiResult!!.definition, textAlign = TextAlign.Justify)
+                        
+                        if (showAiResult!!.example.isNotBlank()) {
+                            Spacer(Modifier.height(16.dp))
+                            Text("Contoh Pusaka:", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                            Text("\"${showAiResult!!.example}\"", style = MaterialTheme.typography.bodyMedium, fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                        }
+
                         Spacer(Modifier.height(16.dp))
                         Text("Tersimpan otomatis di riwayat beranda.", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
                     }

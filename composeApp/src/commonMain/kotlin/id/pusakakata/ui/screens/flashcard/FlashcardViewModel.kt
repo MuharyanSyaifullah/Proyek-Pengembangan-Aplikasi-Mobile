@@ -55,8 +55,8 @@ class FlashcardViewModel(private val repository: ItemRepository) : ViewModel() {
         if (state is FlashcardUiState.Success) {
             viewModelScope.launch {
                 val currentWord = state.currentWord ?: return@launch
-                // Logic update SRS (Simulated for Sprint 2)
-                repository.updateWord(currentWord)
+                // Implementasi SM-2 Algorithm via Repository
+                repository.updateSrs(currentWord.id, quality)
                 
                 if (state.currentIndex + 1 < state.words.size) {
                     _uiState.value = state.copy(
