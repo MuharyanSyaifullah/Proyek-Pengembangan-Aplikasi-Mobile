@@ -5,6 +5,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,7 +24,8 @@ fun DetailScreen(
     viewModel: DetailViewModel,
     onBack: () -> Unit,
     onEdit: (String) -> Unit,
-    onDelete: (String) -> Unit
+    onDelete: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -40,6 +43,13 @@ fun DetailScreen(
                         val word = (uiState as DetailUiState.Success).word
                         IconButton(onClick = { /* Implement share */ }) {
                             Icon(Icons.Default.Share, contentDescription = "Bagikan")
+                        }
+                        IconButton(onClick = { onToggleFavorite(word.id) }) {
+                            Icon(
+                                if (word.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favorit",
+                                tint = if (word.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                         IconButton(onClick = { onEdit(word.id) }) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit")

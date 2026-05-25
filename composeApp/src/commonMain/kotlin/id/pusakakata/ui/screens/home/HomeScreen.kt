@@ -107,7 +107,12 @@ fun HomeScreen(
                                 }
                             }
                             items(words, key = { it.id }) { word ->
-                                ItemCard(word = word, onClick = { onWordClick(word.id) }, onDelete = { viewModel.deleteWord(word.id) })
+                                ItemCard(
+                                    word = word, 
+                                    onClick = { onWordClick(word.id) }, 
+                                    onDelete = { viewModel.deleteWord(word.id) },
+                                    onToggleFavorite = { viewModel.toggleFavorite(word.id) }
+                                )
                             }
                         }
                     }

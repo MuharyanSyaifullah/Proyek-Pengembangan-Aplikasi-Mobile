@@ -9,7 +9,8 @@ CREATE TABLE WordEntity (
     intervalDays INTEGER NOT NULL DEFAULT 0,
     easeFactor REAL NOT NULL DEFAULT 2.5,
     nextReview INTEGER,
-    level INTEGER NOT NULL DEFAULT 0
+    level INTEGER NOT NULL DEFAULT 0,
+    isFavorite INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE UserStats (
@@ -30,9 +31,12 @@ SELECT * FROM WordEntity WHERE id = ?;
 getRandomWords:
 SELECT * FROM WordEntity ORDER BY RANDOM() LIMIT ?;
 
+getFavoriteWords:
+SELECT * FROM WordEntity WHERE isFavorite = 1 ORDER BY createdAt DESC;
+
 insertWord:
-INSERT OR REPLACE INTO WordEntity(id, term, definition, category, example, createdAt, intervalDays, easeFactor, nextReview, level)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO WordEntity(id, term, definition, category, example, createdAt, intervalDays, easeFactor, nextReview, level, isFavorite)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteWord:
 DELETE FROM WordEntity WHERE id = ?;
@@ -46,8 +50,12 @@ SET term = ?,
     intervalDays = ?,
     easeFactor = ?,
     nextReview = ?,
-    level = ?
+    level = ?,
+    isFavorite = ?
 WHERE id = ?;
+
+toggleFavorite:
+UPDATE WordEntity SET isFavorite = CASE WHEN isFavorite = 1 THEN 0 ELSE 1 END WHERE id = ?;
 
 -- Token Queries
 getTokens:

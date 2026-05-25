@@ -8,6 +8,8 @@ import id.pusakakata.ui.screens.detail.DetailViewModel
 import id.pusakakata.ui.screens.gacha.GachaViewModel
 import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
 import id.pusakakata.ui.screens.quiz.QuizViewModel
+import id.pusakakata.ui.screens.favorite.FavoriteViewModel
+import id.pusakakata.ui.screens.profile.ProfileViewModel
 import id.pusakakata.domain.usecase.GachaSystem
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity
@@ -72,6 +74,8 @@ val useCaseModule = module {
 
 val viewModelModule = module {
     viewModelOf(::HomeViewModel)
+    viewModelOf(::FavoriteViewModel)
+    viewModelOf(::ProfileViewModel)
     viewModelOf(::GachaViewModel)
     viewModelOf(::FlashcardViewModel)
     viewModelOf(::QuizViewModel)

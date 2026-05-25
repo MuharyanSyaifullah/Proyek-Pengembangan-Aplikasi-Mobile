@@ -3,6 +3,8 @@ package id.pusakakata.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -14,7 +16,8 @@ import id.pusakakata.domain.model.Word
 fun ItemCard(
     word: Word,
     onClick: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onToggleFavorite: () -> Unit = {}
 ) {
     OutlinedCard(
         modifier = Modifier
@@ -36,12 +39,21 @@ fun ItemCard(
                 Text(word.category, style = MaterialTheme.typography.labelSmall)
             },
             trailingContent = {
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        Icons.Default.Delete, 
-                        contentDescription = "Hapus",
-                        tint = MaterialTheme.colorScheme.error
-                    )
+                Row {
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            if (word.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorit",
+                            tint = if (word.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            Icons.Default.Delete, 
+                            contentDescription = "Hapus",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             },
             colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
