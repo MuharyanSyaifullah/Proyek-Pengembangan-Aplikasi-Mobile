@@ -62,6 +62,27 @@ composeApp/src/commonMain/kotlin/id/pusakakata/
 
 ---
 
+## 🧪 Pengujian (Testing)
+Aplikasi ini memiliki cakupan pengujian yang luas untuk menjamin stabilitas:
+- **Unit Tests (25+ test):** Mencakup semua ViewModel (`Home`, `AddEdit`, `Gacha`, `Quiz`, `Flashcard`, `Favorite`, `Profile`) dan logika Bisnis (`SRS`, `GachaSystem`).
+- **UI Tests (3 test):** Menguji alur navigasi utama dan interaksi kritis pada layar Beranda, Favorit, dan Profil.
+
+### Cara Menjalankan Test:
+1. **Unit Test:**
+   ```bash
+   ./gradlew testDebugUnitTest
+   ```
+   Atau buka folder `commonTest` dan klik kanan -> *Run 'Tests in id.pusakakata'*.
+2. **UI Test (Instrumentation):**
+   Hubungkan perangkat Android/Emulator, lalu jalankan:
+   ```bash
+   ./gradlew connectedAndroidTest
+   ```
+3. **Coverage Report:**
+   Gunakan plugin *Kover* atau *Jacoco* (jika terkonfigurasi) atau fitur *Run with Coverage* di Android Studio pada folder `commonTest`.
+
+---
+
 ## 🚀 Cara Menjalankan
 1. Clone repository ini.
 2. Masukkan `GEMINI_API_KEY` Anda ke dalam file `local.properties`.
