@@ -71,10 +71,10 @@ fun FlashcardScreen(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                "MENGASAH ${state.currentIndex + 1} DARI ${state.words.size}",
+                                "MENGHAFAL ${state.currentIndex + 1} DARI ${state.words.size}",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
-                                    letterSpacing = 2.sp
+                                    letterSpacing = 1.sp
                                 ),
                                 color = MaterialTheme.colorScheme.outline
                             )
@@ -137,7 +137,7 @@ fun FlashcardScreen(
                                     }
                                 } else {
                                     Text(
-                                        "Ketuk pusaka untuk membuka tabir makna", 
+                                        "Ketuk kartu untuk melihat arti",
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.outline,
                                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic

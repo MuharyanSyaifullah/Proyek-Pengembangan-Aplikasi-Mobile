@@ -28,7 +28,7 @@ fun QuizScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tantangan Pusaka") },
+                title = { Text("Kuis Kosakata") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -73,7 +73,7 @@ fun QuizScreen(
                         }
                         
                         Spacer(Modifier.height(32.dp))
-                        Text("Apa makna sejati dari kata:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.outline)
+                        Text("Apa arti dari kata:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.outline)
                         Spacer(Modifier.height(8.dp))
                         Text(
                             state.word.term,

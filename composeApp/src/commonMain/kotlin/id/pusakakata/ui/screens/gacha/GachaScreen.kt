@@ -33,7 +33,7 @@ fun GachaScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pusaka Gacha") },
+                title = { Text("Gacha Mitologi") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -73,7 +73,7 @@ fun GachaScreen(
                     }
                     is GachaUiState.Drawing -> {
                         LoadingIndicator()
-                        Text("Memanggil Pusaka...")
+                        Text("Sedang Menarik Kartu...")
                     }
                     is GachaUiState.Result -> {
                         CardResult(card = state.card)

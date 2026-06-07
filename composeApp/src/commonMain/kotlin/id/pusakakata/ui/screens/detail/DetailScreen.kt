@@ -43,7 +43,7 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Resapi Pusaka") },
+                title = { Text("Detail Kosakata") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -121,7 +121,6 @@ fun DetailScreen(
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        // Definition Card
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -130,7 +129,7 @@ fun DetailScreen(
                         ) {
                             Column(modifier = Modifier.padding(24.dp)) {
                                 Text(
-                                    text = "MAUNA (MAKNA)",
+                                    text = "DEFINISI",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.secondary,
                                     fontWeight = FontWeight.Bold
@@ -157,7 +156,7 @@ fun DetailScreen(
                             ) {
                                 Column(modifier = Modifier.padding(24.dp)) {
                                     Text(
-                                        text = "DAWAI KALIMAT",
+                                        text = "CONTOH KALIMAT",
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold

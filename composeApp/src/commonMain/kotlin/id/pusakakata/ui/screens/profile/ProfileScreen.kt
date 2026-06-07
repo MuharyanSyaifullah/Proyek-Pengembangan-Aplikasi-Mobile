@@ -30,7 +30,7 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("MUKHLISIN (PROFIL)", style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 2.sp)) },
+                title = { Text("PROFIL PENGGUNA", style = MaterialTheme.typography.titleMedium.copy(letterSpacing = 1.sp)) },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = "Pengaturan", tint = MaterialTheme.colorScheme.primary)
@@ -72,13 +72,13 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                "Pengembara Pusaka", 
+                "Pengguna Aplikasi", 
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                "Melestarikan Aksara Nusantara", 
+                "Belajar Kosakata Nusantara",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.secondary
             )
@@ -91,27 +91,27 @@ fun ProfileScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StatCard(
-                    label = "KOLEKSI",
-                    value = "$totalWords",
-                    modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-                StatCard(
-                    label = "FAVORIT",
-                    value = "$favoriteCount ❤️",
-                    modifier = Modifier.weight(1f),
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            StatCard(
-                label = "PUNDI TOKEN",
-                value = "$tokens 🪙",
-                modifier = Modifier.fillMaxWidth(),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                label = "KOLEKSI",
+                value = "$totalWords",
+                modifier = Modifier.weight(1f),
+                containerColor = MaterialTheme.colorScheme.surface
             )
+            StatCard(
+                label = "FAVORIT",
+                value = "$favoriteCount ❤️",
+                modifier = Modifier.weight(1f),
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        StatCard(
+            label = "JUMLAH TOKEN",
+            value = "$tokens 🪙",
+            modifier = Modifier.fillMaxWidth(),
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
             
             Spacer(modifier = Modifier.weight(1f))
             

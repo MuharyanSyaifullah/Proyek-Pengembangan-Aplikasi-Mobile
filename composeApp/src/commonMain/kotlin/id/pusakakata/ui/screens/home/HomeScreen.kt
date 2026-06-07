@@ -188,7 +188,7 @@ fun HomeScreen(
                             )
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Wahyu AI Pusaka ✨", style = MaterialTheme.typography.headlineSmall) 
+                        Text("Hasil Pencarian AI ✨", style = MaterialTheme.typography.headlineSmall) 
                     }
                 },
                 text = {
@@ -204,7 +204,7 @@ fun HomeScreen(
                         
                         if (showAiResult!!.example.isNotBlank()) {
                             Spacer(Modifier.height(20.dp))
-                            Text("Dawai Kalimat:", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+                            Text("Contoh Kalimat:", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
                             Text(
                                 "\"${showAiResult!!.example}\"", 
                                 style = MaterialTheme.typography.bodyLarge, 
@@ -219,7 +219,7 @@ fun HomeScreen(
                         onClick = { showAiResult = null },
                         shape = RoundedCornerShape(12.dp)
                     ) { 
-                        Text("Terima Kasih") 
+                        Text("Selesai") 
                     }
                 }
             )
@@ -246,13 +246,13 @@ fun WelcomeHeader(onQuiz: () -> Unit, onGacha: () -> Unit) {
                 .padding(24.dp)
         ) {
             Text(
-                "Rahayu, Pengembara!",
+                "Selamat Datang!",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                "Asah bahasamu dan koleksi mitologi nusantara.",
+                "Pelajari kosakata baru dan koleksi kartu mitologi.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
             )
@@ -267,7 +267,7 @@ fun WelcomeHeader(onQuiz: () -> Unit, onGacha: () -> Unit) {
                 ) {
                     Icon(Icons.Default.Quiz, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("Uji Nyali", fontWeight = FontWeight.Bold)
+                    Text("Mulai Kuis", fontWeight = FontWeight.Bold)
                 }
                 Button(
                     onClick = onGacha,
