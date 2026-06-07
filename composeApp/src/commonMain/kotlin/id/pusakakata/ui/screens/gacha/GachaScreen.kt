@@ -1,24 +1,31 @@
 package id.pusakakata.ui.screens.gacha
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.pusakakata.domain.model.LegendaryCard
-import id.pusakakata.ui.components.LoadingIndicator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,15 +39,23 @@ fun GachaScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Gacha Mitologi") },
+            CenterAlignedTopAppBar(
+                title = { Text("Galeri Mitologi", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
                     }
                 },
                 actions = {
-                    Text("$tokens 🪙", modifier = Modifier.padding(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Text("$tokens 🪙", style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             )
         }
@@ -49,6 +64,7 @@ fun GachaScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .verticalScroll(scrollState)
         ) {
             Column(
@@ -60,35 +76,27 @@ fun GachaScreen(
             ) {
                 when (val state = uiState) {
                     is GachaUiState.Idle -> {
-                        Text("Tarik Pusaka Keberuntunganmu!", style = MaterialTheme.typography.titleLarge)
-                        Text("Biaya: 1 Token", style = MaterialTheme.typography.bodySmall)
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { viewModel.drawCard() },
-                            enabled = tokens > 0,
-                            shape = MaterialTheme.shapes.large
-                        ) {
-                            Text("Tarik Gacha (1 🪙)")
-                        }
+                        GachaIdleView(onDraw = viewModel::drawCard, canDraw = tokens > 0)
                     }
                     is GachaUiState.Drawing -> {
-                        LoadingIndicator()
-                        Text("Sedang Menarik Kartu...")
+                        GachaDrawingView()
                     }
                     is GachaUiState.Result -> {
                         CardResult(card = state.card)
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
                         Button(
                             onClick = { viewModel.reset() },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(16.dp)
                         ) {
-                            Text("Tarik Lagi")
+                            Text("Tarik Kartu Lagi", fontWeight = FontWeight.Bold)
                         }
                     }
                     is GachaUiState.Error -> {
-                        Text(state.message, color = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = onBack) { Text("Cari Token di Kuis") }
+                        Text(state.message, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(onClick = onBack) { Text("Dapatkan Token di Kuis") }
                     }
                 }
             }
@@ -97,36 +105,109 @@ fun GachaScreen(
 }
 
 @Composable
+fun GachaIdleView(onDraw: () -> Unit, canDraw: Boolean) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            modifier = Modifier.size(200.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+        ) {
+            Icon(
+                Icons.Default.AutoAwesome, 
+                contentDescription = null, 
+                modifier = Modifier.padding(40.dp).fillMaxSize(),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        
+        Text(
+            "Temukan Legenda Nusantara", 
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            "Gunakan 1 token untuk memanggil satu sosok mitologi.", 
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        
+        Spacer(modifier = Modifier.height(48.dp))
+        
+        Button(
+            onClick = onDraw,
+            enabled = canDraw,
+            modifier = Modifier.fillMaxWidth().height(60.dp),
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Text("Mulai Pemanggilan (1 🪙)", fontSize = 18.sp, fontWeight = FontWeight.Black)
+        }
+    }
+}
+
+@Composable
+fun GachaDrawingView() {
+    val infiniteTransition = rememberInfiniteTransition()
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(800, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            Icons.Default.AutoAwesome, 
+            contentDescription = null, 
+            modifier = Modifier.size(120.dp * scale),
+            tint = MaterialTheme.colorScheme.secondary
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Text("Sedang Menarik Kartu...", style = MaterialTheme.typography.titleLarge)
+    }
+}
+
+@Composable
 fun CardResult(card: LegendaryCard) {
+    val rarityColor = when (card.rarity.name) {
+        "MYTHIC" -> Color(0xFFD4AF37)
+        "EPIC" -> Color(0xFF9C27B0)
+        "RARE" -> Color(0xFF2196F3)
+        else -> Color(0xFF757575)
+    }
+
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+            .fillMaxWidth()
+            .border(2.dp, rarityColor.copy(alpha = 0.5f), RoundedCornerShape(32.dp)),
+        shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
         Column(
             modifier = Modifier
                 .background(
                     Brush.verticalGradient(
-                        listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f), MaterialTheme.colorScheme.surface)
+                        listOf(rarityColor.copy(alpha = 0.1f), MaterialTheme.colorScheme.surface)
                     )
                 )
                 .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
-                color = when (card.rarity.name) {
-                    "MYTHIC" -> MaterialTheme.colorScheme.tertiary
-                    "EPIC" -> MaterialTheme.colorScheme.secondary
-                    else -> MaterialTheme.colorScheme.primary
-                },
+                color = rarityColor,
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     text = card.rarity.displayName.uppercase(),
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                     color = Color.White
                 )
             }
@@ -135,39 +216,52 @@ fun CardResult(card: LegendaryCard) {
             
             Text(
                 text = card.name,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Black,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = card.description,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                 lineHeight = 24.sp
             )
             
             if (card.fullStory.isNotBlank()) {
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider(modifier = Modifier.alpha(0.2f))
+                Spacer(modifier = Modifier.height(24.dp))
                 Text(
                     text = card.fullStory,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Justify,
-                    style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 20.sp,
+                    textAlign = TextAlign.Justify,
+                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.secondary)
-                Spacer(Modifier.width(4.dp))
-                Text(text = "Asal: ${card.origin}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+            Surface(
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.LocationOn, 
+                        null, 
+                        modifier = Modifier.size(16.dp), 
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Asal: ${card.origin}", style = MaterialTheme.typography.labelMedium)
+                }
             }
         }
     }

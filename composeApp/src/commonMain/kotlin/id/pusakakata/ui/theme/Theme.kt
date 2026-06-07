@@ -8,31 +8,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryBrown,
+    primary = PrimaryFixed,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFD7CCC8),
-    onPrimaryContainer = BatikBrown,
-    secondary = DeepGold,
+    primaryContainer = PrimaryLight.copy(alpha = 0.2f),
+    onPrimaryContainer = PrimaryFixed,
+    secondary = SecondaryGold,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFFF9C4),
-    onSecondaryContainer = BatikBrown,
-    tertiary = Crimson,
+    secondaryContainer = SecondaryGold.copy(alpha = 0.1f),
+    onSecondaryContainer = PrimaryFixed,
+    tertiary = AccentTeal,
     onTertiary = Color.White,
-    surface = Parchment,
-    onSurface = BatikBrown,
-    background = Parchment,
-    onBackground = BatikBrown,
-    surfaceVariant = Color(0xFFEFEBE9),
-    onSurfaceVariant = BatikBrown,
-    outline = SecondaryTerracotta
+    surface = SurfaceCard,
+    onSurface = PrimaryFixed,
+    background = WarmBackground,
+    onBackground = PrimaryFixed,
+    outline = PrimaryLight.copy(alpha = 0.5f),
+    surfaceVariant = Color(0xFFF5F0E6)
 )
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFFD7CCC8),
-    onPrimary = BatikBrown,
-    secondary = SoftGold,
-    background = BatikBrown,
-    surface = BatikBrown,
+    onPrimary = PrimaryFixed,
+    secondary = SecondaryGold,
+    background = Color(0xFF212121),
+    surface = Color(0xFF2D2D21),
     onBackground = Color.White,
     onSurface = Color.White
 )

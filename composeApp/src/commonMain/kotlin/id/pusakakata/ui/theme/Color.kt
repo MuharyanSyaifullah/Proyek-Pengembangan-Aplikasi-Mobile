@@ -2,14 +2,19 @@ package id.pusakakata.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val BatikBrown = Color(0xFF3E2723)
-val DeepGold = Color(0xFFBF8F00)
-val SoftGold = Color(0xFFFFD54F)
-val Parchment = Color(0xFFFDF6E3)
-val Crimson = Color(0xFF8B0000)
-val SageGreen = Color(0xFF81C784)
-val SlateBlue = Color(0xFF455A64)
+// Palette Utama: "Deep Cendana"
+val PrimaryFixed = Color(0xFF4E342E)
+val PrimaryLight = Color(0xFF8D6E63)
+val SecondaryGold = Color(0xFFC5A059) // Emas pudar yang mewah
+val AccentTeal = Color(0xFF006064) // Kontras untuk aksi penting
+val WarmBackground = Color(0xFFFBF8F2) // Warna kertas mahal
+val SurfaceCard = Color(0xFFFFFFFF)
 
-val PrimaryBrown = Color(0xFF5D4037)
-val SecondaryTerracotta = Color(0xFFA1887F)
-val AccentAmber = Color(0xFFFFC107)
+// Status Colors
+val SuccessGreen = Color(0xFF2E7D32)
+val ErrorRed = Color(0xFFC62828)
+val InfoBlue = Color(0xFF1565C0)
+
+// Gradients
+val PremiumGradient = listOf(Color(0xFF4E342E), Color(0xFF6D4C41))
+val GoldGradient = listOf(Color(0xFFD4AF37), Color(0xFFC5A059))

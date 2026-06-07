@@ -1,9 +1,12 @@
 package id.pusakakata.ui.screens.home
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,7 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,40 +48,44 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            LargeTopAppBar(
                 title = { 
-                    Text(
-                        "Pusaka Kata", 
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 2.sp
+                    Column {
+                        Text(
+                            "Pusaka Kata", 
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         )
-                    ) 
-                },
-                actions = {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
-                            .padding(horizontal = 12.dp, vertical = 4.dp)
-                    ) {
-                        Text("$tokens 🪙", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text(
+                            "Eksplorasi Kosakata Nusantara",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                actions = {
+                    TokenBadge(tokens)
+                    IconButton(onClick = onNavigateToSettings) {
+                        Icon(Icons.Default.Settings, "Pengaturan", tint = MaterialTheme.colorScheme.primary)
+                    }
+                },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
         },
         floatingActionButton = {
-            LargeFloatingActionButton(
+            FloatingActionButton(
                 onClick = onAddWord,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(24.dp)
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.padding(bottom = 8.dp)
             ) {
-                Icon(Icons.Default.Add, "Tambah", modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.Add, "Tambah")
             }
         }
     ) { padding ->
@@ -84,47 +93,20 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
         ) {
-            // Search Bar with Elevation feel
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { viewModel.onSearchQueryChange(it) },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Cari pusaka atau tanya AI...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
-                    trailingIcon = {
-                        if (isSearching) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        } else if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { 
-                                viewModel.executeSearch { word -> showAiResult = word } 
-                            }) {
-                                Icon(Icons.Default.AutoAwesome, contentDescription = "Tanya AI", tint = MaterialTheme.colorScheme.secondary)
-                            }
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                        unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                    ),
-                    singleLine = true
-                )
-            }
+            // Enhanced Search & AI Bar
+            SearchSection(
+                query = searchQuery,
+                onQueryChange = viewModel::onSearchQueryChange,
+                isSearching = isSearching,
+                onAiSearch = { viewModel.executeSearch { word -> showAiResult = word } }
+            )
 
-            if (searchError != null) {
+            AnimatedVisibility(visible = searchError != null) {
                 Text(
-                    searchError!!, 
+                    searchError ?: "", 
                     color = MaterialTheme.colorScheme.error, 
-                    modifier = Modifier.padding(horizontal = 16.dp), 
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -132,155 +114,262 @@ fun HomeScreen(
             Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 when (val state = uiState) {
                     is HomeUiState.Loading -> LoadingIndicator()
-                    is HomeUiState.Empty -> EmptyState(message = "Perpustakaan Pusaka masih kosong.")
+                    is HomeUiState.Empty -> EmptyState(message = "Mulailah dengan mencari kata baru!")
                     is HomeUiState.Error -> ErrorMessage(message = state.message)
                     is HomeUiState.Success -> {
-                        val words = state.words
-                        LazyColumn(
-                            contentPadding = PaddingValues(bottom = 100.dp, start = 16.dp, end = 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            item {
-                                WelcomeHeader(onNavigateToQuiz, onNavigateToGacha)
-                            }
-                            
-                            item {
-                                Text(
-                                    "Koleksi Pusakamu",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(vertical = 8.dp),
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                            
-                            items(words, key = { it.id }) { word ->
-                                ItemCard(
-                                    word = word, 
-                                    onClick = { onWordClick(word.id) }, 
-                                    onDelete = { viewModel.deleteWord(word.id) },
-                                    onToggleFavorite = { viewModel.toggleFavorite(word.id) }
-                                )
-                            }
-                        }
+                        WordList(
+                            words = state.words,
+                            onWordClick = onWordClick,
+                            onDelete = viewModel::deleteWord,
+                            onToggleFavorite = viewModel::toggleFavorite,
+                            onQuiz = onNavigateToQuiz,
+                            onGacha = onNavigateToGacha
+                        )
                     }
                 }
             }
         }
         
-        // Pop-up AI Result
         if (showAiResult != null) {
-            AlertDialog(
-                onDismissRequest = { showAiResult = null },
-                shape = RoundedCornerShape(28.dp),
-                containerColor = MaterialTheme.colorScheme.surface,
-                title = { 
-                    Column {
-                        Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = showAiResult!!.category,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        Text("Hasil Pencarian AI ✨", style = MaterialTheme.typography.headlineSmall) 
-                    }
-                },
-                text = {
-                    Column {
-                        Text(
-                            showAiResult!!.term, 
-                            style = MaterialTheme.typography.displaySmall, 
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        Text(showAiResult!!.definition, textAlign = TextAlign.Justify, lineHeight = 20.sp)
-                        
-                        if (showAiResult!!.example.isNotBlank()) {
-                            Spacer(Modifier.height(20.dp))
-                            Text("Contoh Kalimat:", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
-                            Text(
-                                "\"${showAiResult!!.example}\"", 
-                                style = MaterialTheme.typography.bodyLarge, 
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = { showAiResult = null },
-                        shape = RoundedCornerShape(12.dp)
-                    ) { 
-                        Text("Selesai") 
-                    }
-                }
+            AiResultDialog(
+                word = showAiResult!!,
+                onDismiss = { showAiResult = null }
             )
         }
     }
 }
 
 @Composable
-fun WelcomeHeader(onQuiz: () -> Unit, onGacha: () -> Unit) {
+fun SearchSection(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    isSearching: Boolean,
+    onAiSearch: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary)
-                    )
-                )
-                .padding(24.dp)
+        TextField(
+            value = query,
+            onValueChange = onQueryChange,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Cari kata atau tanya AI...") },
+            leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.primary) },
+            trailingIcon = {
+                if (isSearching) {
+                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                } else if (query.isNotEmpty()) {
+                    IconButton(onClick = onAiSearch) {
+                        Icon(Icons.Default.AutoAwesome, "Tanya AI", tint = MaterialTheme.colorScheme.secondary)
+                    }
+                }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            singleLine = true
+        )
+    }
+}
+
+@Composable
+fun TokenBadge(tokens: Long) {
+    Surface(
+        modifier = Modifier
+            .padding(end = 16.dp)
+            .clip(RoundedCornerShape(12.dp)),
+        color = MaterialTheme.colorScheme.secondaryContainer
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Selamat Datang!",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.Bold
+                text = "$tokens", 
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSecondaryContainer
             )
+            Spacer(Modifier.width(4.dp))
+            Text("🪙", fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+fun WordList(
+    words: List<Word>,
+    onWordClick: (String) -> Unit,
+    onDelete: (String) -> Unit,
+    onToggleFavorite: (String) -> Unit,
+    onQuiz: () -> Unit,
+    onGacha: () -> Unit
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        item {
+            ActionBanner(onQuiz, onGacha)
+        }
+        
+        item {
             Text(
-                "Pelajari kosakata baru dan koleksi kartu mitologi.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                "Koleksi Anda",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(
-                    onClick = onQuiz,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary, contentColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(vertical = 12.dp)
-                ) {
-                    Icon(Icons.Default.Quiz, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Mulai Kuis", fontWeight = FontWeight.Bold)
-                }
-                Button(
-                    onClick = onGacha,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = MaterialTheme.colorScheme.onSecondary),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(vertical = 12.dp)
-                ) {
-                    Icon(Icons.Default.Casino, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("Gacha", fontWeight = FontWeight.Bold)
-                }
+        }
+        
+        items(words, key = { it.id }) { word ->
+            ItemCard(
+                word = word,
+                onClick = { onWordClick(word.id) },
+                onDelete = { onDelete(word.id) },
+                onToggleFavorite = { onToggleFavorite(word.id) }
+            )
+        }
+        
+        item { Spacer(modifier = Modifier.height(80.dp)) }
+    }
+}
+
+@Composable
+fun ActionBanner(onQuiz: () -> Unit, onGacha: () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        BannerButton(
+            title = "Mulai Kuis",
+            subtitle = "Dapatkan Token",
+            icon = Icons.Default.Quiz,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f),
+            onClick = onQuiz
+        )
+        BannerButton(
+            title = "Pusaka Gacha",
+            subtitle = "Koleksi Kartu",
+            icon = Icons.Default.Casino,
+            color = MaterialTheme.colorScheme.secondary,
+            modifier = Modifier.weight(1f),
+            onClick = onGacha
+        )
+    }
+}
+
+@Composable
+fun BannerButton(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: Color,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.height(100.dp),
+        shape = RoundedCornerShape(20.dp),
+        onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = color)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Subtle Background decoration
+            Icon(
+                icon, null,
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 10.dp, y = 10.dp),
+                tint = Color.White.copy(alpha = 0.15f)
+            )
+            
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                Icon(icon, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.height(8.dp))
+                Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(subtitle, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
             }
         }
     }
+}
+
+@Composable
+fun AiResultDialog(word: Word, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = RoundedCornerShape(32.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.AutoAwesome, null, tint = MaterialTheme.colorScheme.secondary)
+                Spacer(Modifier.width(12.dp))
+                Text("Analisis AI", style = MaterialTheme.typography.headlineSmall)
+            }
+        },
+        text = {
+            Column(modifier = Modifier.padding(top = 8.dp)) {
+                Text(
+                    word.term,
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Black
+                    )
+                )
+                
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.padding(vertical = 12.dp)
+                ) {
+                    Text(
+                        word.category.uppercase(),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                
+                Text(
+                    word.definition,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Justify
+                )
+                
+                if (word.example.isNotEmpty()) {
+                    Spacer(Modifier.height(20.dp))
+                    Text(
+                        "Contoh Penggunaan:",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    Text(
+                        "\"${word.example}\"",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                        ),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Tutup", fontWeight = FontWeight.Bold)
+            }
+        }
+    )
 }

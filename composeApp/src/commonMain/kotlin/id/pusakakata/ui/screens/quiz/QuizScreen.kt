@@ -1,8 +1,11 @@
 package id.pusakakata.ui.screens.quiz
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -28,7 +31,7 @@ fun QuizScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kuis Kosakata") },
+                title = { Text("Asah Pengetahuan") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -57,7 +60,10 @@ fun QuizScreen(
                 )
                 is QuizUiState.Question -> {
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(24.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(24.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Surface(
@@ -65,7 +71,7 @@ fun QuizScreen(
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(
-                                state.quizMessage.uppercase(), 
+                                "TANTANGAN KATA", 
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
@@ -73,8 +79,8 @@ fun QuizScreen(
                         }
                         
                         Spacer(Modifier.height(32.dp))
-                        Text("Apa arti dari kata:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.outline)
-                        Spacer(Modifier.height(8.dp))
+                        Text("Apa makna dari kata:", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.outline)
+                        Spacer(Modifier.height(12.dp))
                         Text(
                             state.word.term,
                             style = MaterialTheme.typography.displayMedium,
@@ -86,58 +92,17 @@ fun QuizScreen(
                         Spacer(Modifier.height(48.dp))
 
                         state.options.forEach { option ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                shape = RoundedCornerShape(20.dp),
-                                onClick = { viewModel.submitAnswer(option) },
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                            ) {
-                                Text(
-                                    text = option, 
-                                    modifier = Modifier.padding(20.dp), 
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                            OptionCard(
+                                text = option,
+                                onClick = { viewModel.submitAnswer(option) }
+                            )
                         }
                     }
                 }
                 is QuizUiState.Finished -> {
-                    AlertDialog(
-                        onDismissRequest = { /* Force selection */ },
-                        shape = RoundedCornerShape(28.dp),
-                        title = { 
-                            Text(
-                                if (state.isCorrect) "Jawaban Benar! 🎉" else "Jawaban Kurang Tepat ❌",
-                                fontWeight = FontWeight.Bold
-                            )
-                        },
-                        text = { 
-                            Column {
-                                Text(
-                                    if (state.isCorrect) "Selamat! Anda mendapat +10 Token untuk Gacha." 
-                                    else "Jangan menyerah, terus asah ingatan anda!"
-                                )
-                                Spacer(Modifier.height(24.dp))
-                                Text("Seberapa sulit tantangan ini bagi Anda?", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                            }
-                        },
-                        confirmButton = {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                DifficultyButton("Sangat Mudah", 5) { viewModel.updateSrsAndNext(5) }
-                                DifficultyButton("Bisa Saya Ingat", 3) { viewModel.updateSrsAndNext(3) }
-                                DifficultyButton("Sangat Sulit", 1) { viewModel.updateSrsAndNext(1) }
-                            }
-                        }
+                    ResultDialog(
+                        isCorrect = state.isCorrect,
+                        onUpdateSrs = viewModel::updateSrsAndNext
                     )
                 }
             }
@@ -146,9 +111,67 @@ fun QuizScreen(
 }
 
 @Composable
-fun DifficultyButton(label: String, quality: Int, onClick: () -> Unit) {
-    Button(
+fun OptionCard(text: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        shape = RoundedCornerShape(20.dp),
         onClick = onClick,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Text(
+            text = text, 
+            modifier = Modifier.padding(24.dp), 
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 24.sp),
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
+fun ResultDialog(isCorrect: Boolean, onUpdateSrs: (Int) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { },
+        shape = RoundedCornerShape(28.dp),
+        title = { 
+            Text(
+                if (isCorrect) "Jawaban Benar! 🎉" else "Jawaban Kurang Tepat ❌",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = { 
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    if (isCorrect) "Selamat! Anda mendapat +10 Token." 
+                    else "Jangan menyerah, terus asah ingatan Anda!",
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(24.dp))
+                Text("Bagaimana tingkat kesulitannya?", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            }
+        },
+        confirmButton = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                DifficultyOption("Mudah", 5, onUpdateSrs)
+                DifficultyOption("Biasa", 3, onUpdateSrs)
+                DifficultyOption("Sulit", 1, onUpdateSrs)
+            }
+        }
+    )
+}
+
+@Composable
+fun DifficultyOption(label: String, quality: Int, onClick: (Int) -> Unit) {
+    Button(
+        onClick = { onClick(quality) },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(

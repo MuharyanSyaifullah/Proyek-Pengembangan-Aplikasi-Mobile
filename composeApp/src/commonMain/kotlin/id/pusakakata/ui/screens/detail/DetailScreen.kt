@@ -18,8 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -43,7 +41,7 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detail Kosakata") },
+                title = { },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -56,7 +54,7 @@ fun DetailScreen(
                             Icon(
                                 imageVector = if (word.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorit",
-                                tint = if (word.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = if (word.isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         IconButton(onClick = { onEdit(word.id) }) {
@@ -74,11 +72,6 @@ fun DetailScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)
-                    )
-                )
                 .padding(padding)
         ) {
             when (val state = uiState) {
@@ -90,100 +83,86 @@ fun DetailScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .padding(24.dp)
                     ) {
-                        // Category Badge
                         Surface(
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            shape = RoundedCornerShape(12.dp)
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(
                                 text = word.category.uppercase(),
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    letterSpacing = 2.sp
-                                ),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         }
                         
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         
                         Text(
                             text = word.term,
                             style = MaterialTheme.typography.displayMedium,
                             color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Black
                         )
                         
                         Spacer(modifier = Modifier.height(32.dp))
                         
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                            shape = RoundedCornerShape(24.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                        ) {
-                            Column(modifier = Modifier.padding(24.dp)) {
-                                Text(
-                                    text = "DEFINISI",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = word.definition,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        lineHeight = 26.sp,
-                                        fontSize = 18.sp
-                                    ),
-                                    textAlign = TextAlign.Justify
-                                )
-                            }
-                        }
+                        Text(
+                            text = "Definisi",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.secondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        Text(
+                            text = word.definition,
+                            style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                            textAlign = TextAlign.Justify
+                        )
                         
                         if (word.example.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                            // Example Card
+                            Spacer(modifier = Modifier.height(40.dp))
+                            
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
                                 shape = RoundedCornerShape(24.dp)
                             ) {
                                 Column(modifier = Modifier.padding(24.dp)) {
                                     Text(
-                                        text = "CONTOH KALIMAT",
+                                        text = "Contoh Kalimat",
                                         style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Bold
+                                        color = MaterialTheme.colorScheme.primary
                                     )
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Spacer(Modifier.height(12.dp))
                                     Text(
                                         text = "\"${word.example}\"",
                                         style = MaterialTheme.typography.bodyLarge.copy(
                                             fontStyle = FontStyle.Italic,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            lineHeight = 24.sp
                                         ),
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.fillMaxWidth()
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
                             }
                         }
                         
-                        Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(48.dp))
                         
-                        // Footer decoration
-                        Icon(
-                            Icons.Default.Share, 
-                            contentDescription = null, 
-                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                            modifier = Modifier.size(48.dp)
-                        )
+                        // Action area
+                        Button(
+                            onClick = { /* Implement sharing */ },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(16.dp)
+                        ) {
+                            Icon(Icons.Default.Share, null)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Bagikan Kosakata")
+                        }
                     }
                 }
             }
