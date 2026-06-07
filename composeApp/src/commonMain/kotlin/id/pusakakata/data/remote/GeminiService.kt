@@ -93,9 +93,9 @@ class GeminiService(
     suspend fun generateContent(prompt: String): Result<String> {
         return try {
             val trimmedKey = apiKey.trim()
-            if (trimmedKey.isBlank() || !trimmedKey.startsWith("AIza")) {
+            if (trimmedKey.isBlank()) {
                 return Result.failure(
-                    Exception("Gemini API key tidak valid atau belum terbaca.")
+                    Exception("Gemini API key tidak boleh kosong.")
                 )
             }
 
