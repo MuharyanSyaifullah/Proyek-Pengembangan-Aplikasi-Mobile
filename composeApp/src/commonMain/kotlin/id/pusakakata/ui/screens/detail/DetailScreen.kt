@@ -1,6 +1,10 @@
 package id.pusakakata.ui.screens.detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -14,7 +18,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import id.pusakakata.ui.components.LoadingIndicator
 import id.pusakakata.ui.components.ErrorMessage
 
@@ -32,7 +43,7 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detail Kata") },
+                title = { Text("Resapi Pusaka") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -41,14 +52,11 @@ fun DetailScreen(
                 actions = {
                     if (uiState is DetailUiState.Success) {
                         val word = (uiState as DetailUiState.Success).word
-                        IconButton(onClick = { /* Implement share */ }) {
-                            Icon(Icons.Default.Share, contentDescription = "Bagikan")
-                        }
                         IconButton(onClick = { onToggleFavorite(word.id) }) {
                             Icon(
-                                if (word.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                imageVector = if (word.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = "Favorit",
-                                tint = if (word.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = if (word.isFavorite) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         IconButton(onClick = { onEdit(word.id) }) {
@@ -58,13 +66,19 @@ fun DetailScreen(
                             Icon(Icons.Default.Delete, contentDescription = "Hapus", tint = MaterialTheme.colorScheme.error)
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.surfaceVariant)
+                    )
+                )
                 .padding(padding)
         ) {
             when (val state = uiState) {
@@ -74,68 +88,103 @@ fun DetailScreen(
                     val word = state.word
                     Column(
                         modifier = Modifier
-                            .padding(24.dp)
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        // Category Badge
                         Surface(
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = MaterialTheme.shapes.medium
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
-                                text = word.category,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                        
-                        Text(
-                            text = word.term,
-                            style = MaterialTheme.typography.displayMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        
-                        HorizontalDivider()
-                        
-                        Text(
-                            text = "Definisi:",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.secondary
-                        )
-                        
-                        Text(
-                            text = word.definition,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-
-                        if (word.example.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "Contoh Kalimat:",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Text(
-                                text = "\"${word.example}\"",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                                text = word.category.uppercase(),
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    letterSpacing = 2.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
+                        Text(
+                            text = word.term,
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Black
+                        )
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+                        
+                        // Definition Card
                         Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant
-                            )
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            shape = RoundedCornerShape(24.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Riwayat Pengetahuan", style = MaterialTheme.typography.titleMedium)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("Tersimpan secara lokal di pusaka anda.", style = MaterialTheme.typography.bodySmall)
+                            Column(modifier = Modifier.padding(24.dp)) {
+                                Text(
+                                    text = "MAUNA (MAKNA)",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    text = word.definition,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        lineHeight = 26.sp,
+                                        fontSize = 18.sp
+                                    ),
+                                    textAlign = TextAlign.Justify
+                                )
                             }
                         }
+                        
+                        if (word.example.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+                            // Example Card
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)),
+                                shape = RoundedCornerShape(24.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(24.dp)) {
+                                    Text(
+                                        text = "DAWAI KALIMAT",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    Text(
+                                        text = "\"${word.example}\"",
+                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                            fontStyle = FontStyle.Italic,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        ),
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(40.dp))
+                        
+                        // Footer decoration
+                        Icon(
+                            Icons.Default.Share, 
+                            contentDescription = null, 
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            modifier = Modifier.size(48.dp)
+                        )
                     }
                 }
             }

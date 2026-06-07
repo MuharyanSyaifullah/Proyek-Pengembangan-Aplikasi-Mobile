@@ -1,30 +1,51 @@
 package id.pusakakata.ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF6D4C41), // Earthy Brown
+    primary = PrimaryBrown,
     onPrimary = Color.White,
     primaryContainer = Color(0xFFD7CCC8),
-    onPrimaryContainer = Color(0xFF3E2723),
-    secondary = Color(0xFFBF360C), // Terracotta/Clay
+    onPrimaryContainer = BatikBrown,
+    secondary = DeepGold,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFFCCBC),
-    onSecondaryContainer = Color(0xFF212121),
-    tertiary = Color(0xFFFBC02D), // Gold/Mustard
-    onTertiary = Color(0xFF3E2723),
-    surface = Color(0xFFFFFBF0), // Creamy paper
-    background = Color(0xFFFFFBF0),
-    error = Color(0xFFB00020)
+    secondaryContainer = Color(0xFFFFF9C4),
+    onSecondaryContainer = BatikBrown,
+    tertiary = Crimson,
+    onTertiary = Color.White,
+    surface = Parchment,
+    onSurface = BatikBrown,
+    background = Parchment,
+    onBackground = BatikBrown,
+    surfaceVariant = Color(0xFFEFEBE9),
+    onSurfaceVariant = BatikBrown,
+    outline = SecondaryTerracotta
+)
+
+private val DarkColorScheme = darkColorScheme(
+    primary = Color(0xFFD7CCC8),
+    onPrimary = BatikBrown,
+    secondary = SoftGold,
+    background = BatikBrown,
+    surface = BatikBrown,
+    onBackground = Color.White,
+    onSurface = Color.White
 )
 
 @Composable
-fun PusakaKataTheme(content: @Composable () -> Unit) {
+fun PusakaKataTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+
     MaterialTheme(
-        colorScheme = LightColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

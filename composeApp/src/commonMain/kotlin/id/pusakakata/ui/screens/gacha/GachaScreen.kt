@@ -1,13 +1,20 @@
 package id.pusakakata.ui.screens.gacha
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.ui.components.LoadingIndicator
 
@@ -79,21 +86,64 @@ fun GachaScreen(
 @Composable
 fun CardResult(card: LegendaryCard) {
     Card(
-        modifier = Modifier.padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
+            modifier = Modifier
+                .background(
+                    Brush.verticalGradient(
+                        listOf(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f), MaterialTheme.colorScheme.surface)
+                    )
+                )
+                .padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "ANDA MENDAPATKAN:", style = MaterialTheme.typography.labelSmall)
-            Text(text = card.rarity.displayName, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = card.name, style = MaterialTheme.typography.headlineLarge)
+            Surface(
+                color = when (card.rarity.name) {
+                    "MYTHIC" -> MaterialTheme.colorScheme.tertiary
+                    "EPIC" -> MaterialTheme.colorScheme.secondary
+                    else -> MaterialTheme.colorScheme.primary
+                },
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = card.rarity.displayName.uppercase(),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Text(
+                text = card.name,
+                style = MaterialTheme.typography.displaySmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.primary
+            )
+            
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = card.description, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Asal: ${card.origin}", style = MaterialTheme.typography.bodySmall)
+            
+            Text(
+                text = card.description,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                style = MaterialTheme.typography.bodyLarge,
+                lineHeight = 24.sp
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.secondary)
+                Spacer(Modifier.width(4.dp))
+                Text(text = "Asal: ${card.origin}", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.secondary)
+            }
         }
     }
 }
