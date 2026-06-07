@@ -2,7 +2,9 @@ package id.pusakakata.ui.screens.gacha
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOn
@@ -26,6 +28,7 @@ fun GachaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val tokens by viewModel.tokens.collectAsState()
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -42,41 +45,51 @@ fun GachaScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .padding(padding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .verticalScroll(scrollState)
         ) {
-            when (val state = uiState) {
-                is GachaUiState.Idle -> {
-                    Text("Tarik Pusaka Keberuntunganmu!", style = MaterialTheme.typography.titleLarge)
-                    Text("Biaya: 1 Token", style = MaterialTheme.typography.bodySmall)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = { viewModel.drawCard() },
-                        enabled = tokens > 0,
-                        shape = MaterialTheme.shapes.large
-                    ) {
-                        Text("Tarik Gacha (1 🪙)")
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                when (val state = uiState) {
+                    is GachaUiState.Idle -> {
+                        Text("Tarik Pusaka Keberuntunganmu!", style = MaterialTheme.typography.titleLarge)
+                        Text("Biaya: 1 Token", style = MaterialTheme.typography.bodySmall)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = { viewModel.drawCard() },
+                            enabled = tokens > 0,
+                            shape = MaterialTheme.shapes.large
+                        ) {
+                            Text("Tarik Gacha (1 🪙)")
+                        }
                     }
-                }
-                is GachaUiState.Drawing -> {
-                    LoadingIndicator()
-                    Text("Memanggil Pusaka...")
-                }
-                is GachaUiState.Result -> {
-                    CardResult(card = state.card)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { viewModel.reset() }) {
-                        Text("Tarik Lagi")
+                    is GachaUiState.Drawing -> {
+                        LoadingIndicator()
+                        Text("Memanggil Pusaka...")
                     }
-                }
-                is GachaUiState.Error -> {
-                    Text(state.message, color = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onBack) { Text("Cari Token di Kuis") }
+                    is GachaUiState.Result -> {
+                        CardResult(card = state.card)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(
+                            onClick = { viewModel.reset() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Tarik Lagi")
+                        }
+                    }
+                    is GachaUiState.Error -> {
+                        Text(state.message, color = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = onBack) { Text("Cari Token di Kuis") }
+                    }
                 }
             }
         }
@@ -87,8 +100,7 @@ fun GachaScreen(
 fun CardResult(card: LegendaryCard) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            .fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -123,7 +135,7 @@ fun CardResult(card: LegendaryCard) {
             
             Text(
                 text = card.name,
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -133,9 +145,22 @@ fun CardResult(card: LegendaryCard) {
             Text(
                 text = card.description,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                 lineHeight = 24.sp
             )
+            
+            if (card.fullStory.isNotBlank()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = card.fullStory,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Justify,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             
             Spacer(modifier = Modifier.height(24.dp))
             
