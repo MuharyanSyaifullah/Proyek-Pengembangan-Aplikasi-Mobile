@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -175,6 +176,8 @@ fun GachaDrawingView() {
 
 @Composable
 fun CardResult(card: LegendaryCard) {
+    var showFullStory by remember { mutableStateOf(false) }
+    
     val rarityColor = when (card.rarity.name) {
         "MYTHIC" -> Color(0xFFD4AF37)
         "EPIC" -> Color(0xFF9C27B0)
@@ -231,18 +234,6 @@ fun CardResult(card: LegendaryCard) {
                 lineHeight = 24.sp
             )
             
-            if (card.fullStory.isNotBlank()) {
-                Spacer(modifier = Modifier.height(24.dp))
-                HorizontalDivider(modifier = Modifier.alpha(0.2f))
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = card.fullStory,
-                    textAlign = TextAlign.Justify,
-                    style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 22.sp),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            
             Spacer(modifier = Modifier.height(32.dp))
             
             Surface(
@@ -263,6 +254,46 @@ fun CardResult(card: LegendaryCard) {
                     Text("Asal: ${card.origin}", style = MaterialTheme.typography.labelMedium)
                 }
             }
+
+            if (card.fullStory.isNotBlank()) {
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(
+                    onClick = { showFullStory = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Icon(Icons.Default.HistoryEdu, null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Baca Cerita Lengkap", fontWeight = FontWeight.Bold)
+                }
+            }
         }
+    }
+
+    if (showFullStory) {
+        AlertDialog(
+            onDismissRequest = { showFullStory = false },
+            shape = RoundedCornerShape(28.dp),
+            title = {
+                Text(
+                    text = "Legenda ${card.name}",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Text(
+                        text = card.fullStory,
+                        style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
+                        textAlign = TextAlign.Justify
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showFullStory = false }) {
+                    Text("Tutup", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 }
