@@ -21,6 +21,8 @@ import id.pusakakata.ui.screens.addedit.AddEditScreen
 import id.pusakakata.ui.screens.addedit.AddEditViewModel
 import id.pusakakata.ui.screens.detail.DetailScreen
 import id.pusakakata.ui.screens.detail.DetailViewModel
+import id.pusakakata.ui.screens.collection.CollectionScreen
+import id.pusakakata.ui.screens.collection.CollectionViewModel
 import id.pusakakata.ui.screens.favorite.FavoriteScreen
 import id.pusakakata.ui.screens.favorite.FavoriteViewModel
 import id.pusakakata.ui.screens.flashcard.FlashcardScreen
@@ -101,7 +103,15 @@ fun AppNavHost(navController: NavHostController) {
                 val viewModel: ProfileViewModel = koinViewModel()
                 ProfileScreen(
                     viewModel = viewModel,
-                    onNavigateToSettings = { navController.navigate(Routes.Settings.route) }
+                    onNavigateToSettings = { navController.navigate(Routes.Settings.route) },
+                    onNavigateToCollection = { navController.navigate(Routes.Collection.route) }
+                )
+            }
+            composable(Routes.Collection.route) {
+                val viewModel: CollectionViewModel = koinViewModel()
+                CollectionScreen(
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
             composable(

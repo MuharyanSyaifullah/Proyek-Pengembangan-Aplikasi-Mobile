@@ -22,4 +22,8 @@ interface ItemRepository {
     
     // Quiz logic
     suspend fun getRandomWords(limit: Long): List<Word>
+    
+    // Collection logic
+    fun getCollectedCardIds(): Flow<List<String>>
+    suspend fun saveCollectedCard(cardId: String)
 }

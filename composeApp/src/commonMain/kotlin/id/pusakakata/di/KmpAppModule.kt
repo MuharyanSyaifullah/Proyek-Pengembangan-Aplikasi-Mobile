@@ -10,6 +10,7 @@ import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
 import id.pusakakata.ui.screens.quiz.QuizViewModel
 import id.pusakakata.ui.screens.favorite.FavoriteViewModel
 import id.pusakakata.ui.screens.profile.ProfileViewModel
+import id.pusakakata.ui.screens.collection.CollectionViewModel
 import id.pusakakata.domain.usecase.GachaSystem
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity
@@ -97,6 +98,7 @@ val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::FavoriteViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::CollectionViewModel)
     viewModelOf(::GachaViewModel)
     viewModelOf(::FlashcardViewModel)
     viewModelOf(::QuizViewModel)

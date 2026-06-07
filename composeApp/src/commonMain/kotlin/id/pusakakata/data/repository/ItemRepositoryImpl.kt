@@ -218,4 +218,12 @@ class ItemRepositoryImpl(
     override suspend fun getRandomWords(limit: Long): List<Word> {
         return queries.getRandomWords(limit).executeAsList().map { it.toDomain() }
     }
+
+    override fun getCollectedCardIds(): Flow<List<String>> {
+        return queries.getCollectedCardIds().asFlow().mapToList(Dispatchers.IO)
+    }
+
+    override suspend fun saveCollectedCard(cardId: String) {
+        queries.insertCollectedCard(cardId, Clock.System.now().toEpochMilliseconds())
+    }
 }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -21,7 +22,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToCollection: () -> Unit
 ) {
     val tokens by viewModel.tokens.collectAsState()
     val totalWords by viewModel.totalWords.collectAsState()
@@ -112,8 +114,21 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = onNavigateToCollection,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(Icons.Default.HistoryEdu, null)
+            Spacer(Modifier.width(12.dp))
+            Text("Galeri Mitologi", fontWeight = FontWeight.Bold)
+        }
             
-            Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
             
             Text(
                 "Versi 1.0.0 (Sprint 4 Polish)",

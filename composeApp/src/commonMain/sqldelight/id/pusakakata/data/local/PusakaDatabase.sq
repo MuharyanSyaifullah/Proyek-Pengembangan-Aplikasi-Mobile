@@ -18,6 +18,11 @@ CREATE TABLE UserStats (
     tokens INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE CollectedCardEntity (
+    cardId TEXT NOT NULL PRIMARY KEY,
+    collectedAt INTEGER NOT NULL
+);
+
 -- Init user stats if not exists
 INSERT OR IGNORE INTO UserStats(id, tokens) VALUES (1, 0);
 
@@ -66,3 +71,11 @@ UPDATE UserStats SET tokens = tokens + ? WHERE id = 1;
 
 useToken:
 UPDATE UserStats SET tokens = tokens - 1 WHERE id = 1;
+
+-- Collection Queries
+getCollectedCardIds:
+SELECT cardId FROM CollectedCardEntity;
+
+insertCollectedCard:
+INSERT OR IGNORE INTO CollectedCardEntity(cardId, collectedAt)
+VALUES (?, ?);
