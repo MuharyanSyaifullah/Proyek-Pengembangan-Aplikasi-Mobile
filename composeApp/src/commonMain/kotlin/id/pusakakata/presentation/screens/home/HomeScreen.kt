@@ -3,6 +3,7 @@ package id.pusakakata.presentation.screens.home
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -245,8 +246,10 @@ fun WordList(
 @Composable
 fun ActionBanner(onQuiz: () -> Unit, onGacha: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         BannerButton(
             title = "Mulai Kuis",
@@ -276,32 +279,42 @@ fun BannerButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = modifier.height(100.dp),
-        shape = RoundedCornerShape(20.dp),
-        onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = color)
+    Surface(
+        modifier = modifier
+            .height(120.dp)
+            .shadow(8.dp, RoundedCornerShape(24.dp))
+            .clip(RoundedCornerShape(24.dp))
+            .clickable { onClick() },
+        color = color
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Subtle Background decoration
             Icon(
                 icon, null,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(90.dp)
                     .align(Alignment.BottomEnd)
-                    .offset(x = 10.dp, y = 10.dp),
-                tint = Color.White.copy(alpha = 0.15f)
+                    .offset(x = 15.dp, y = 15.dp),
+                tint = Color.White.copy(alpha = 0.12f)
             )
             
             Column(
                 modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.CenterStart)
+                    .padding(20.dp)
+                    .align(Alignment.TopStart)
             ) {
-                Icon(icon, null, tint = Color.White, modifier = Modifier.size(24.dp))
-                Spacer(Modifier.height(8.dp))
-                Text(title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(subtitle, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+                Surface(
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.2f),
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                Text(title, color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
+                Text(subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
