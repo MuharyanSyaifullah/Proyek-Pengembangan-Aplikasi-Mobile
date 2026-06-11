@@ -1,5 +1,7 @@
 package id.pusakakata.presentation.screens.profile
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -8,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HistoryEdu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Wallet
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -90,7 +93,7 @@ fun ProfileScreen(
             
             Spacer(modifier = Modifier.height(40.dp))
             
-            // Stats Section with better visual hierarchy
+            // Stats Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -110,46 +113,10 @@ fun ProfileScreen(
                 )
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
-            // Token Card with Premium Feel
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .shadow(8.dp, RoundedCornerShape(24.dp))
-                    .clip(RoundedCornerShape(24.dp)),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Row(
-                    modifier = Modifier.padding(24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text(
-                            "SALDO TOKEN", 
-                            style = MaterialTheme.typography.labelSmall, 
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            "$tokens 🪙", 
-                            style = MaterialTheme.typography.headlineMedium, 
-                            fontWeight = FontWeight.Black,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                    Button(
-                        onClick = onNavigateToCollection,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(Icons.Default.HistoryEdu, null, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Galeri")
-                    }
-                }
-            }
+            // Smoother Token Wallet Card
+            TokenWalletCard(tokens = tokens, onNavigateToCollection = onNavigateToCollection)
             
             Spacer(modifier = Modifier.weight(1f))
             
@@ -158,6 +125,96 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun TokenWalletCard(tokens: Long, onNavigateToCollection: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(140.dp)
+            .shadow(12.dp, RoundedCornerShape(32.dp)),
+        shape = RoundedCornerShape(32.dp),
+        color = MaterialTheme.colorScheme.primary
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,
+                            MaterialTheme.colorScheme.tertiary
+                        )
+                    )
+                )
+        ) {
+            // Background Decoration
+            Icon(
+                Icons.Default.Wallet, 
+                null,
+                modifier = Modifier
+                    .size(120.dp)
+                    .align(Alignment.BottomEnd)
+                    .offset(x = 20.dp, y = 20.dp),
+                tint = Color.White.copy(alpha = 0.1f)
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        "DOMPET TOKEN", 
+                        style = MaterialTheme.typography.labelSmall, 
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.7f),
+                        letterSpacing = 1.5.sp
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        AnimatedContent(
+                            targetState = tokens,
+                            transitionSpec = {
+                                (slideInVertically { it } + fadeIn() togetherWith slideOutVertically { -it } + fadeOut())
+                                    .using(SizeTransform(clip = false))
+                            }
+                        ) { targetTokens ->
+                            Text(
+                                text = "$targetTokens",
+                                style = MaterialTheme.typography.displayMedium,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("🪙", fontSize = 28.sp)
+                    }
+                }
+
+                Button(
+                    onClick = onNavigateToCollection,
+                    modifier = Modifier.height(48.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                ) {
+                    Icon(Icons.Default.HistoryEdu, null, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text("Galeri", fontWeight = FontWeight.Bold)
+                }
+            }
         }
     }
 }
