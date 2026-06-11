@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -46,8 +48,10 @@ fun HomeScreen(
     val tokens by viewModel.tokens.collectAsState()
     
     var showAiResult by remember { mutableStateOf<Word?>(null) }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { 
@@ -69,25 +73,25 @@ fun HomeScreen(
                 actions = {
                     TokenBadge(tokens)
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, "Pengaturan", tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Outlined.Settings, "Pengaturan", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.largeTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     scrolledContainerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                scrollBehavior = scrollBehavior
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = onAddWord,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
-            ) {
-                Icon(Icons.Default.Add, "Tambah")
-            }
+                shape = RoundedCornerShape(20.dp),
+                icon = { Icon(Icons.Default.Add, "Tambah") },
+                text = { Text("Tambah Kata", fontWeight = FontWeight.Bold) }
+            )
         }
     ) { padding ->
         Column(
@@ -95,7 +99,6 @@ fun HomeScreen(
                 .padding(padding)
                 .fillMaxSize()
         ) {
-            // Enhanced Search & AI Bar
             SearchSection(
                 query = searchQuery,
                 onQueryChange = viewModel::onSearchQueryChange,
@@ -150,23 +153,29 @@ fun SearchSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        shape = RoundedCornerShape(28.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         TextField(
             value = query,
             onValueChange = onQueryChange,
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Cari kata atau tanya AI...") },
+            placeholder = { Text("Cari kata unik Nusantara...", style = MaterialTheme.typography.bodyMedium) },
             leadingIcon = { Icon(Icons.Default.Search, null, tint = MaterialTheme.colorScheme.primary) },
             trailingIcon = {
                 if (isSearching) {
                     CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                 } else if (query.isNotEmpty()) {
-                    IconButton(onClick = onAiSearch) {
-                        Icon(Icons.Default.AutoAwesome, "Tanya AI", tint = MaterialTheme.colorScheme.secondary)
+                    IconButton(
+                        onClick = onAiSearch,
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                    ) {
+                        Icon(Icons.Default.AutoAwesome, "Tanya AI", tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(18.dp))
                     }
                 }
             },
@@ -174,7 +183,8 @@ fun SearchSection(
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = MaterialTheme.colorScheme.primary
             ),
             singleLine = true
         )
@@ -185,21 +195,22 @@ fun SearchSection(
 fun TokenBadge(tokens: Long) {
     Surface(
         modifier = Modifier
-            .padding(end = 16.dp)
-            .clip(RoundedCornerShape(12.dp)),
-        color = MaterialTheme.colorScheme.secondaryContainer
+            .padding(end = 8.dp)
+            .clip(RoundedCornerShape(16.dp)),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        onClick = {}
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "$tokens", 
-                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.ExtraBold),
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
-            Spacer(Modifier.width(4.dp))
-            Text("🪙", fontSize = 14.sp)
+            Spacer(Modifier.width(6.dp))
+            Text("🪙", fontSize = 16.sp)
         }
     }
 }
@@ -214,7 +225,7 @@ fun WordList(
     onGacha: () -> Unit
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
@@ -222,12 +233,22 @@ fun WordList(
         }
         
         item {
-            Text(
-                "Koleksi Anda",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Koleksi Pusaka",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Black),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    "${words.size} Kata",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
         
         items(words, key = { it.id }) { word ->
@@ -239,32 +260,28 @@ fun WordList(
             )
         }
         
-        item { Spacer(modifier = Modifier.height(80.dp)) }
+        item { Spacer(modifier = Modifier.height(100.dp)) }
     }
 }
 
 @Composable
 fun ActionBanner(onQuiz: () -> Unit, onGacha: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         BannerButton(
-            title = "Mulai Kuis",
-            subtitle = "Dapatkan Token",
+            title = "Uji Pengetahuan",
+            subtitle = "Asah ingatan & dapatkan token koin",
             icon = Icons.Default.Quiz,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.weight(1f),
+            gradient = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)),
             onClick = onQuiz
         )
         BannerButton(
-            title = "Pusaka Gacha",
-            subtitle = "Koleksi Kartu",
+            title = "Galeri Mitologi",
+            subtitle = "Panggil sosok legenda Nusantara",
             icon = Icons.Default.Casino,
-            color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.weight(1f),
+            gradient = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f)),
             onClick = onGacha
         )
     }
@@ -275,46 +292,56 @@ fun BannerButton(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    color: Color,
-    modifier: Modifier = Modifier,
+    gradient: List<Color>,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier
-            .height(120.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
             .shadow(8.dp, RoundedCornerShape(24.dp))
             .clip(RoundedCornerShape(24.dp))
             .clickable { onClick() },
-        color = color
+        color = Color.Transparent
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Subtle Background decoration
+        Box(
+            modifier = Modifier
+                .background(Brush.linearGradient(gradient))
+                .fillMaxSize()
+        ) {
             Icon(
                 icon, null,
                 modifier = Modifier
-                    .size(90.dp)
+                    .size(120.dp)
                     .align(Alignment.BottomEnd)
-                    .offset(x = 15.dp, y = 15.dp),
-                tint = Color.White.copy(alpha = 0.12f)
+                    .offset(x = 25.dp, y = 25.dp),
+                tint = Color.White.copy(alpha = 0.15f)
             )
             
-            Column(
-                modifier = Modifier
-                    .padding(20.dp)
-                    .align(Alignment.TopStart)
+            Row(
+                modifier = Modifier.padding(24.dp).fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Surface(
-                    shape = CircleShape,
+                    shape = RoundedCornerShape(16.dp),
                     color = Color.White.copy(alpha = 0.2f),
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(52.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(icon, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        Icon(icon, null, tint = Color.White, modifier = Modifier.size(28.dp))
                     }
                 }
-                Spacer(Modifier.height(12.dp))
-                Text(title, color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-                Text(subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                
+                Spacer(Modifier.width(20.dp))
+                
+                Column {
+                    Text(title, color = Color.White, fontWeight = FontWeight.Black, fontSize = 20.sp)
+                    Text(subtitle, color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+                }
+                
+                Spacer(Modifier.weight(1f))
+                
+                Icon(Icons.Default.ChevronRight, null, tint = Color.White.copy(alpha = 0.7f))
             }
         }
     }
@@ -326,12 +353,9 @@ fun AiResultDialog(word: Word, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(32.dp),
         containerColor = MaterialTheme.colorScheme.surface,
+        icon = { Icon(Icons.Default.AutoAwesome, null, tint = MaterialTheme.colorScheme.secondary) },
         title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.AutoAwesome, null, tint = MaterialTheme.colorScheme.secondary)
-                Spacer(Modifier.width(12.dp))
-                Text("Analisis AI", style = MaterialTheme.typography.headlineSmall)
-            }
+            Text("Analisis Pusaka AI", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         },
         text = {
             Column(modifier = Modifier.padding(top = 8.dp)) {
@@ -344,43 +368,54 @@ fun AiResultDialog(word: Word, onDismiss: () -> Unit) {
                 )
                 
                 Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.padding(vertical = 12.dp)
                 ) {
                     Text(
                         word.category.uppercase(),
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
                 
                 Text(
                     word.definition,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 26.sp),
                     textAlign = TextAlign.Justify
                 )
                 
                 if (word.example.isNotEmpty()) {
-                    Spacer(Modifier.height(20.dp))
+                    Spacer(Modifier.height(24.dp))
                     Text(
                         "Contoh Penggunaan:",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        "\"${word.example}\"",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                        ),
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                        shape = RoundedCornerShape(16.dp),
+                        modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
+                    ) {
+                        Text(
+                            "\"${word.example}\"",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                            ),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
+            Button(
+                onClick = onDismiss,
+                shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp)
+            ) {
                 Text("Tutup", fontWeight = FontWeight.Bold)
             }
         }

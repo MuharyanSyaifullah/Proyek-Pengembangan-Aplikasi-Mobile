@@ -131,28 +131,8 @@ class ItemRepositoryImpl(
 
     override suspend fun updateSrs(wordId: String, quality: Int) {
         val word = getWordById(wordId) ?: return
-        val srs = word.srsData
-        
-        // SM-2 Algorithm logic
-        val newEaseFactor = (srs.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)))
-            .coerceAtLeast(1.3)
-        
-        val newInterval = when {
-            quality < 3 -> 1
-            srs.intervalDays == 0 -> 1
-            srs.intervalDays == 1 -> 6
-            else -> (srs.intervalDays * newEaseFactor).toInt()
-        }
-        
-        val nextReview = Clock.System.now().plus(newInterval, DateTimeUnit.DAY, kotlinx.datetime.TimeZone.currentSystemDefault())
-        
         val updatedWord = word.copy(
-            srsData = srs.copy(
-                intervalDays = newInterval,
-                easeFactor = newEaseFactor,
-                nextReview = nextReview,
-                level = if (quality >= 3) srs.level + 1 else 0
-            )
+            srsData = word.srsData.calculateNextReview(quality, Clock.System.now())
         )
         updateWord(updatedWord)
     }
@@ -200,7 +180,8 @@ class ItemRepositoryImpl(
     }
 
     override fun getTokens(): Flow<Long> {
-        return queries.getTokens().asFlow().mapToOne(Dispatchers.IO)
+        // return queries.getTokens().asFlow().mapToOne(Dispatchers.IO)
+        return kotlinx.coroutines.flow.flowOf(0L) // Simulasi 0 coin
     }
 
     override suspend fun addTokens(amount: Long) {
@@ -208,11 +189,14 @@ class ItemRepositoryImpl(
     }
 
     override suspend fun useToken(): Boolean {
+        /*
         val current = queries.getTokens().executeAsOne()
         return if (current > 0) {
             queries.useToken()
             true
         } else false
+        */
+        return false // Simulasi gagal pakai token
     }
 
     override suspend fun getRandomWords(limit: Long): List<Word> {

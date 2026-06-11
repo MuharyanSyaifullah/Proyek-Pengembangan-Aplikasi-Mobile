@@ -30,8 +30,7 @@ class FakeItemRepository : ItemRepository {
 
     override suspend fun updateSrs(wordId: String, quality: Int) {
         val word = getWordById(wordId) ?: return
-        // Minimal logic for test
-        updateWord(word.copy(srsData = word.srsData.copy(level = word.srsData.level + 1)))
+        updateWord(word.copy(srsData = word.srsData.calculateNextReview(quality, kotlinx.datetime.Clock.System.now())))
     }
 
     override suspend fun toggleFavorite(wordId: String) {

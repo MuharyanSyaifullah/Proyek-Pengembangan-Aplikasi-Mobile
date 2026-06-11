@@ -158,3 +158,22 @@ sqldelight {
         }
     }
 }
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*ScreenKt",
+                    "id.pusakakata.presentation.theme.*",
+                    "id.pusakakata.presentation.components.*",
+                    "id.pusakakata.di.*",
+                    "id.pusakakata.data.local.*", // SQLDelight generated
+                    "id.pusakakata.core.util.DatabaseDriverFactory*",
+                    "id.pusakakata.presentation.screens.*.*UiState*",
+                    "id.pusakakata.presentation.screens.addedit.AiResponse"
+                )
+            }
+        }
+    }
+}

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -46,15 +47,46 @@ class FlashcardViewModelTest {
     }
 
     @Test
-    fun flipCard_updatesState() = runTest {
-        val word = Word("1", "T1", "D1", "C1", srsData = SRSData(nextReview = Clock.System.now()))
+    fun nextCard_movesToNextIndex() = runTest {
+        val word1 = Word("1", "T1", "D1", "C1", srsData = SRSData(nextReview = Clock.System.now()))
+        val word2 = Word("2", "T2", "D2", "C1", srsData = SRSData(nextReview = Clock.System.now()))
+        repository.insertWord(word1)
+        repository.insertWord(word2)
+        
+        viewModel = FlashcardViewModel(repository)
+        advanceUntilIdle()
+        
+        viewModel.nextCard(5)
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value as FlashcardUiState.Success
+        assertEquals(1, state.currentIndex)
+        assertFalse(state.isFlipped)
+    }
+
+    @Test
+    fun nextCard_reachesEnd_setsFinished() = runTest {
+        val word1 = Word("1", "T1", "D1", "C1", srsData = SRSData(nextReview = Clock.System.now()))
+        repository.insertWord(word1)
+        
+        viewModel = FlashcardViewModel(repository)
+        advanceUntilIdle()
+        
+        viewModel.nextCard(5)
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value as FlashcardUiState.Success
+        assertTrue(state.isFinished)
+    }
+
+    @Test
+    fun loadCards_ignoresNonDueCards() = runTest {
+        val word = Word("1", "T1", "D1", "C1", srsData = SRSData(nextReview = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds() + 1000000)))
         repository.insertWord(word)
         
         viewModel = FlashcardViewModel(repository)
         advanceUntilIdle()
         
-        viewModel.flipCard()
-        val state = viewModel.uiState.value as FlashcardUiState.Success
-        assertTrue(state.isFlipped)
+        assertEquals(FlashcardUiState.Empty, viewModel.uiState.value)
     }
 }

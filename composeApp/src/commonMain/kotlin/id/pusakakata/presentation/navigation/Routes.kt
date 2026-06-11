@@ -1,6 +1,7 @@
 package id.pusakakata.presentation.navigation
 
 sealed class Routes(val route: String) {
+    object Main : Routes("main")
     object Home : Routes("home")
     object AddEdit : Routes("add_edit?wordId={wordId}") {
         fun passId(id: String? = null) = "add_edit?wordId=$id"

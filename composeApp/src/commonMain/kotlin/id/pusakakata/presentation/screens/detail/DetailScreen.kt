@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.pusakakata.core.util.rememberShareManager
 import id.pusakakata.presentation.components.LoadingIndicator
 import id.pusakakata.presentation.components.ErrorMessage
 
@@ -37,6 +38,7 @@ fun DetailScreen(
     onToggleFavorite: (String) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val shareManager = rememberShareManager()
 
     Scaffold(
         topBar = {
@@ -154,14 +156,20 @@ fun DetailScreen(
                         
                         // Action area
                         Button(
-                            onClick = { /* Implement sharing */ },
+                            onClick = { 
+                                val textToShare = "Pusaka Kata: ${word.term}\n\n" +
+                                        "Definisi: ${word.definition}\n\n" +
+                                        "Kategori: ${word.category}\n" +
+                                        (if (word.example.isNotBlank()) "\nContoh: \"${word.example}\"" else "")
+                                shareManager.shareText(textToShare)
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             contentPadding = PaddingValues(16.dp)
                         ) {
                             Icon(Icons.Default.Share, null)
-                            Spacer(Modifier.width(8.dp))
-                            Text("Bagikan Kosakata")
+                            Spacer(Modifier.width(12.dp))
+                            Text("Bagikan Kosakata", fontWeight = FontWeight.Bold)
                         }
                     }
                 }

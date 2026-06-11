@@ -8,32 +8,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryFixed,
+    primary = PusakaDeepBrown,
     onPrimary = Color.White,
-    primaryContainer = PrimaryLight.copy(alpha = 0.2f),
-    onPrimaryContainer = PrimaryFixed,
-    secondary = SecondaryGold,
+    primaryContainer = PusakaBrown.copy(alpha = 0.15f),
+    onPrimaryContainer = PusakaDeepBrown,
+    secondary = PusakaRust,
     onSecondary = Color.White,
-    secondaryContainer = SecondaryGold.copy(alpha = 0.1f),
-    onSecondaryContainer = PrimaryFixed,
-    tertiary = AccentTeal,
+    secondaryContainer = PusakaRust.copy(alpha = 0.1f),
+    onSecondaryContainer = PusakaDeepBrown,
+    tertiary = PusakaPeach,
     onTertiary = Color.White,
     surface = SurfaceCard,
-    onSurface = PrimaryFixed,
-    background = WarmBackground,
-    onBackground = PrimaryFixed,
-    outline = PrimaryLight.copy(alpha = 0.5f),
-    surfaceVariant = Color(0xFFF5F0E6)
+    onSurface = PusakaDeepBrown,
+    background = PusakaCream,
+    onBackground = PusakaDeepBrown,
+    outline = PusakaBrown.copy(alpha = 0.5f),
+    surfaceVariant = PusakaCream.copy(alpha = 0.5f)
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFD7CCC8),
-    onPrimary = PrimaryFixed,
-    secondary = SecondaryGold,
-    background = Color(0xFF212121),
-    surface = Color(0xFF2D2D21),
-    onBackground = Color.White,
-    onSurface = Color.White
+    primary = PusakaPeach,
+    onPrimary = PusakaDeepBrown,
+    primaryContainer = PusakaDeepBrown,
+    onPrimaryContainer = PusakaCream,
+    secondary = PusakaRust,
+    onSecondary = Color.White,
+    tertiary = PusakaBrown,
+    onTertiary = Color.White,
+    background = Color(0xFF121212),
+    surface = Color(0xFF1E1E1E),
+    onBackground = PusakaCream,
+    onSurface = PusakaCream,
+    outline = PusakaBrown
 )
 
 @Composable

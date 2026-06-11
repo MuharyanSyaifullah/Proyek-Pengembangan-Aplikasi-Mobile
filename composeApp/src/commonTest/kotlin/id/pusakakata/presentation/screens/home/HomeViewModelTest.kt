@@ -59,16 +59,45 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun searchFiltering_worksCorrectly() = runTest {
-        repository.insertWord(Word("1", "Apple", "Def1", "Cat"))
-        repository.insertWord(Word("2", "Banana", "Def2", "Cat"))
+    fun executeSearch_newWord_callsRepository() = runTest {
+        var successWord: Word? = null
+        viewModel.onSearchQueryChange("Membiru")
+        viewModel.executeSearch { successWord = it }
+        
+        // Wait for delay(1500)
+        testDispatcher.scheduler.advanceTimeBy(1600)
         advanceUntilIdle()
+        
+        assertNotNull(successWord)
+        assertEquals("Membiru", successWord?.term)
+        assertEquals("", viewModel.searchQuery.value)
+    }
 
-        viewModel.onSearchQueryChange("app")
+    @Test
+    fun executeSearch_existingWord_returnsDirectly() = runTest {
+        val word = Word("1", "Pusaka", "Def", "Cat")
+        repository.insertWord(word)
         advanceUntilIdle()
+        
+        var successWord: Word? = null
+        viewModel.onSearchQueryChange("Pusaka")
+        viewModel.executeSearch { successWord = it }
+        
+        advanceUntilIdle()
+        assertEquals(word, successWord)
+        assertEquals("", viewModel.searchQuery.value)
+    }
 
-        val state = viewModel.uiState.value as HomeUiState.Success
-        assertEquals(1, state.words.size)
-        assertEquals("Apple", state.words[0].term)
+    @Test
+    fun toggleFavorite_updatesRepository() = runTest {
+        val word = Word("1", "Pusaka", "Def", "Cat", isFavorite = false)
+        repository.insertWord(word)
+        advanceUntilIdle()
+        
+        viewModel.toggleFavorite("1")
+        advanceUntilIdle()
+        
+        val updatedWord = repository.getWordById("1")
+        assertTrue(updatedWord?.isFavorite == true)
     }
 }
