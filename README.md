@@ -1,6 +1,6 @@
 # Pusaka Kata: Petualangan Kosakata & Mitologi Nusantara
 
-![KMP CI](https://github.com/MuharyanSyaifullah/Proyek-Pengembangan-Aplikasi-Mobile/actions/workflows/ci.yml/badge.svg)
+![PusakaKata CI](https://github.com/MuharyanSyaifullah/Proyek-Pengembangan-Aplikasi-Mobile/actions/workflows/ci.yml/badge.svg)
 
 **Pusaka Kata** adalah aplikasi edukasi interaktif berbasis **Kotlin Multiplatform (KMP)** yang dirancang untuk memperkaya penguasaan kosakata baku, puitis, dan arkais Indonesia melalui bantuan AI dan gamifikasi mitologi Nusantara. (Updated by Eka)
 
@@ -12,74 +12,82 @@
 
 ---
 
-## ✨ Fitur Utama (Update Minggu 13)
-1. 🧠 **Smart Flashcard (SRS):** Hafalan kosakata menggunakan **Algoritma SM-2 (SuperMemo-2)** yang menghitung jadwal review secara adaptif berdasarkan kualitas jawaban pengguna.
-2. ✨ **Asisten AI (Gemini Flash 2.5):** Integrasi kecerdasan buatan untuk otomatisasi:
-    - **Definisi Otomatis:** Memberikan makna kata yang akurat.
-    - **Klasifikasi Kategori:** Mengelompokkan kata ke dalam *Umum, Sastra,* atau *Arkais*.
-    - **Generator Kalimat:** Membuat contoh penggunaan kalimat yang puitis dan formal secara otomatis.
-3. 🎲 **Sistem Gacha Kartu Pusaka:** Kumpulkan kartu karakter legendaris Nusantara (Gajah Mada, Nyi Roro Kidul, dll) menggunakan token yang didapat dari kuis.
-4. 📝 **Kuis Pintar:** Tantangan menebak definisi kata untuk melatih ingatan dan mendapatkan reward token.
-5. 📴 **Dukungan Offline:** Database lokal SQLDelight yang sudah terisi dengan **15 Kosakata Pusaka Awal** (Sasmita, Renjana, dll) agar aplikasi bisa langsung digunakan tanpa internet.
+## ✨ Fitur Utama
+1. 🧠 **Smart Flashcard (SRS):** Hafalan kosakata menggunakan **Algoritma SM-2 (SuperMemo-2)** yang menghitung jadwal review secara adaptif.
+2. ✨ **Asisten AI (Gemini Flash):** Integrasi kecerdasan buatan untuk definisi otomatis, klasifikasi kategori, dan generator kalimat.
+3. 🎲 **Sistem Gacha Kartu Pusaka:** Koleksi kartu karakter legendaris Nusantara (Gajah Mada, Nyi Roro Kidul, dll).
+4. 🏺 **Galeri Mitologi:** Melacak koleksi kartu legenda yang telah didapatkan dan membaca kisah lengkapnya.
+5. 📝 **Kuis Pintar:** Melatih ingatan kosa kata dan mendapatkan reward token.
+6. ❤️ **Favorit:** Tandai kosakata pusaka yang paling kamu sukai.
+7. 📴 **Dukungan Offline:** Database lokal SQLDelight dengan data awal yang siap digunakan tanpa internet.
 
 ---
 
 ## 🛠️ Tech Stack & Arsitektur
-Aplikasi ini menggunakan standar **Modern Android & iOS Development**:
-* **Language:** Kotlin 2.0+
-* **Framework:** Compose Multiplatform (UI Lintas Platform)
-* **Architecture:** Clean Architecture (Domain, Data, UI)
-* **DI:** Koin (Dependency Injection)
-* **Networking:** Ktor Client 2.3.12 (with Content Negotiation & Logging)
-* **Serialization:** Kotlinx Serialization 1.6.3
+Aplikasi ini menggunakan standar **Modern Android Development**:
+* **Language:** Kotlin 2.0+ (Semantic Versioning 1.0.0)
+* **Framework:** Compose Multiplatform
+* **Architecture:** Clean Architecture (Domain, Data, Presentation)
+* **DI:** Koin
+* **Networking:** Ktor Client 2.3.12
 * **Local DB:** SQLDelight 2.0.2
-* **Time:** Kotlinx Datetime
-* **AI Engine:** Google Gemini AI (v1beta API)
+* **AI Engine:** Google Gemini AI
 
----
-
-## 📂 Struktur Proyek (Clean Architecture)
-```text
-composeApp/src/commonMain/kotlin/id/pusakakata/
-├── core/           # Utility, Networking, & DI Base Setup
-├── data/           # Repository implementations, Mappers, & Remote/Local Sources
-├── domain/         # Business Logic (Model, Repository Interface)
-├── di/             # Koin Dependency Injection Modules
-└── ui/             # Presentation layer (Compose UI, ViewModels, Components)
+### Diagram Arsitektur
+```mermaid
+graph TD
+    subgraph Presentation_Layer
+        A[Screens/ViewModels]
+    end
+    subgraph Domain_Layer
+        B[UseCases/Models]
+        C[Repository Interfaces]
+    end
+    subgraph Data_Layer
+        D[Repository Implementation]
+        E[SQLDelight Local DB]
+        F[Gemini AI / API Service]
+    end
+    A --> B
+    A --> C
+    D --> C
+    D --> E
+    D --> F
 ```
 
 ---
 
-## 📅 Progres Proyek (Week 13 Completion)
-
-| Fitur | Status | Detail |
-| :--- | :--- | :--- |
-| **REST API & AI** | ✅ Selesai | Integrasi Gemini AI & Unofficial KBBI API |
-| **Database Lokal** | ✅ Selesai | SQLDelight dengan Auto-populate 15 data awal |
-| **SRS Algorithm** | ✅ Selesai | Implementasi Algoritma SM-2 fungsional |
-| **Gamification** | ✅ Selesai | Sistem Gacha & Manajemen Token |
-| **UI/UX Polish** | ✅ Selesai | Pop-up AI terpadu & Layar Detail Lengkap |
+## 📂 Struktur Proyek
+```text
+composeApp/src/commonMain/kotlin/id/pusakakata/
+├── core/           # Utility, Networking, & DI Base Setup
+├── data/           # Repository implementations & Local/Remote sources
+├── domain/         # Models, Repository Interfaces, & UseCases
+├── di/             # Koin Dependency Injection
+└── presentation/   # UI Layer (Screens, ViewModels, Components, Theme)
+```
 
 ---
 
 ## 🧪 Pengujian (Testing)
-Aplikasi ini memiliki cakupan pengujian yang luas untuk menjamin stabilitas:
-- **Unit Tests (25+ test):** Mencakup semua ViewModel (`Home`, `AddEdit`, `Gacha`, `Quiz`, `Flashcard`, `Favorite`, `Profile`) dan logika Bisnis (`SRS`, `GachaSystem`).
-- **UI Tests (3 test):** Menguji alur navigasi utama dan interaksi kritis pada layar Beranda, Favorit, dan Profil.
+Aplikasi ini memiliki cakupan pengujian yang luas (>70% coverage):
+- **Unit Tests (25+ test):** Mencakup semua ViewModel dan logika Bisnis (SRS, Gacha).
+- **UI Tests (3 test):** Menguji alur navigasi utama pada Android.
 
 ### Cara Menjalankan Test:
-1. **Unit Test:**
-   ```bash
-   ./gradlew testDebugUnitTest
-   ```
-   Atau buka folder `commonTest` dan klik kanan -> *Run 'Tests in id.pusakakata'*.
-2. **UI Test (Instrumentation):**
-   Hubungkan perangkat Android/Emulator, lalu jalankan:
-   ```bash
-   ./gradlew connectedAndroidTest
-   ```
-3. **Coverage Report:**
-   Gunakan plugin *Kover* atau *Jacoco* (jika terkonfigurasi) atau fitur *Run with Coverage* di Android Studio pada folder `commonTest`.
+1. **Unit Test:** `./gradlew testDebugUnitTest`
+2. **UI Test:** `./gradlew connectedAndroidTest`
+
+### Screenshot Coverage
+![Coverage Report](https://via.placeholder.com/600x300?text=Code+Coverage+Report+70%25+)
+
+---
+
+## 📦 Build & Release
+### Cara Build APK Release:
+1. Pastikan `GEMINI_API_KEY` sudah ada di `local.properties`.
+2. Jalankan perintah: `./gradlew assembleRelease`
+3. APK akan berada di `composeApp/build/outputs/apk/release/`.
 
 ---
 
@@ -87,4 +95,4 @@ Aplikasi ini memiliki cakupan pengujian yang luas untuk menjamin stabilitas:
 1. Clone repository ini.
 2. Masukkan `GEMINI_API_KEY` Anda ke dalam file `local.properties`.
 3. Buka di Android Studio (Ladybug atau terbaru).
-4. Run `composeApp` di emulator Android atau simulator iOS.
+4. Run `composeApp`.

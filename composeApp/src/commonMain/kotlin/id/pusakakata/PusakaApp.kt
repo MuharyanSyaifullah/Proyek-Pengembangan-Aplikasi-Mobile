@@ -2,8 +2,8 @@ package id.pusakakata
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
-import id.pusakakata.ui.navigation.AppNavHost
-import id.pusakakata.ui.theme.PusakaKataTheme
+import id.pusakakata.presentation.navigation.AppNavHost
+import id.pusakakata.presentation.theme.PusakaKataTheme
 
 @Composable
 fun PusakaApp() {

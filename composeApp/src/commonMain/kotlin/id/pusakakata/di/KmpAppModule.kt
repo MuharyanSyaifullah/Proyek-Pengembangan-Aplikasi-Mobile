@@ -2,15 +2,15 @@ package id.pusakakata.di
 
 import id.pusakakata.data.repository.ItemRepositoryImpl
 import id.pusakakata.domain.repository.ItemRepository
-import id.pusakakata.ui.screens.home.HomeViewModel
-import id.pusakakata.ui.screens.addedit.AddEditViewModel
-import id.pusakakata.ui.screens.detail.DetailViewModel
-import id.pusakakata.ui.screens.gacha.GachaViewModel
-import id.pusakakata.ui.screens.flashcard.FlashcardViewModel
-import id.pusakakata.ui.screens.quiz.QuizViewModel
-import id.pusakakata.ui.screens.favorite.FavoriteViewModel
-import id.pusakakata.ui.screens.profile.ProfileViewModel
-import id.pusakakata.ui.screens.collection.CollectionViewModel
+import id.pusakakata.presentation.screens.home.HomeViewModel
+import id.pusakakata.presentation.screens.addedit.AddEditViewModel
+import id.pusakakata.presentation.screens.detail.DetailViewModel
+import id.pusakakata.presentation.screens.gacha.GachaViewModel
+import id.pusakakata.presentation.screens.flashcard.FlashcardViewModel
+import id.pusakakata.presentation.screens.quiz.QuizViewModel
+import id.pusakakata.presentation.screens.favorite.FavoriteViewModel
+import id.pusakakata.presentation.screens.profile.ProfileViewModel
+import id.pusakakata.presentation.screens.collection.CollectionViewModel
 import id.pusakakata.domain.usecase.GachaSystem
 import id.pusakakata.domain.model.LegendaryCard
 import id.pusakakata.domain.model.Rarity

@@ -167,7 +167,7 @@ class ItemRepositoryImpl(
             var example = ""
 
             try {
-                val parsed = Json { ignoreUnknownKeys = true }.decodeFromString<id.pusakakata.ui.screens.addedit.AiResponse>(rawResponse)
+                val parsed = Json { ignoreUnknownKeys = true }.decodeFromString<id.pusakakata.presentation.screens.addedit.AiResponse>(rawResponse)
                 definition = parsed.definition
                 val cat = parsed.category
                 category = if (cat == "Umum" || cat == "Sastra" || cat == "Arkais") cat else "Umum"
