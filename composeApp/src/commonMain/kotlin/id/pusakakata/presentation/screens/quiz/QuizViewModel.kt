@@ -62,7 +62,7 @@ class QuizViewModel(private val repository: ItemRepository) : ViewModel() {
             viewModelScope.launch {
                 val isCorrect = (answer == state.correctAnswer)
                 if (isCorrect) {
-                    repository.addTokens(10)
+                    repository.addTokens(1)
                     // Update SRS jika benar (Quality 4 = Berhasil)
                     repository.updateSrs(state.word.id, 4)
                 } else {

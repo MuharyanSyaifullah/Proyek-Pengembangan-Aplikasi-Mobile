@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>composeApp Coverage Report > PusakaDatabaseImpl</title>
+  <title>composeApp Coverage Report > GachaSystem</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,15 +19,18 @@
 <div class="breadCrumbs">
 Current scope: composeApp<span class="separator">|</span>    <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">id.pusakakata.data.local.composeApp</a>
+    <a href="../index.html">id.pusakakata.domain.usecase</a>
 </div>
 
-<h1>Coverage Summary for Class: PusakaDatabaseImpl (id.pusakakata.data.local.composeApp)</h1>
+<h1>Coverage Summary for Class: GachaSystem (id.pusakakata.domain.usecase)</h1>
 
 <table class="coverageStats">
-
 <tr>
   <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
 <th class="coverageStat 
 ">
   Method, %
@@ -46,89 +49,49 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 </th>
 </tr>
 <tr>
-  <td class="name">PusakaDatabaseImpl</td>
+  <td class="name">GachaSystem</td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/1)
-  </span>
-</td>
-    <td class="coverageStat"/>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/3)
+    (1/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/19)
-  </span>
-</td>
-</tr>
-  <tr>
-    <td class="name">PusakaDatabaseImpl$Schema</td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/3)
-  </span>
-</td>
-    <td class="coverageStat"/>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/12)
+    (3/3)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/50)
-  </span>
-</td>
-  </tr>
-<tr>
-  <td class="name"><strong>Total</strong></td>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/4)
-  </span>
-</td>
-    <td class="coverageStat"/>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/15)
+    (10/10)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    0%
+    100%
   </span>
   <span class="absValue">
-    (0/69)
+    (12/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (75/75)
   </span>
 </td>
 </tr>
+
 </table>
 
 <br/>
@@ -136,89 +99,35 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package id.pusakakata.`data`.local.composeApp
+<code class="sourceCode" id="sourceCode">&nbsp;package id.pusakakata.domain.usecase
 &nbsp;
-&nbsp;import app.cash.sqldelight.TransacterImpl
-&nbsp;import app.cash.sqldelight.db.AfterVersion
-&nbsp;import app.cash.sqldelight.db.QueryResult
-&nbsp;import app.cash.sqldelight.db.SqlDriver
-&nbsp;import app.cash.sqldelight.db.SqlSchema
-&nbsp;import com.example.noteai.`data`.local.NoteQueries
-&nbsp;import id.pusakakata.`data`.local.PusakaDatabase
-&nbsp;import id.pusakakata.`data`.local.PusakaDatabaseQueries
-&nbsp;import kotlin.Long
-&nbsp;import kotlin.Unit
-&nbsp;import kotlin.reflect.KClass
+&nbsp;import id.pusakakata.domain.model.LegendaryCard
+&nbsp;import id.pusakakata.domain.model.Rarity
+&nbsp;import kotlin.random.Random
 &nbsp;
-&nbsp;internal val KClass&lt;PusakaDatabase&gt;.schema: SqlSchema&lt;QueryResult.Value&lt;Unit&gt;&gt;
-&nbsp;  get() = PusakaDatabaseImpl.Schema
+<b class="fc">&nbsp;class GachaSystem(private val availableCards: List&lt;LegendaryCard&gt;) {</b>
 &nbsp;
-&nbsp;internal fun KClass&lt;PusakaDatabase&gt;.newInstance(driver: SqlDriver): PusakaDatabase =
-&nbsp;    PusakaDatabaseImpl(driver)
+<b class="fc">&nbsp;    fun getAllCards(): List&lt;LegendaryCard&gt; = availableCards</b>
 &nbsp;
-&nbsp;private class PusakaDatabaseImpl(
-&nbsp;  driver: SqlDriver,
-<b class="nc">&nbsp;) : TransacterImpl(driver), PusakaDatabase {</b>
-<b class="nc">&nbsp;  override val noteQueries: NoteQueries = NoteQueries(driver)</b>
+&nbsp;    fun drawCard(): LegendaryCard {
+<b class="fc">&nbsp;        val randomValue = Random.nextInt(1, 101) // 1-100</b>
+&nbsp;        
+<b class="fc">&nbsp;        val selectedRarity = when {</b>
+<b class="fc">&nbsp;            randomValue &lt;= Rarity.MYTHIC.weight -&gt; Rarity.MYTHIC</b>
+<b class="fc">&nbsp;            randomValue &lt;= (Rarity.MYTHIC.weight + Rarity.EPIC.weight) -&gt; Rarity.EPIC</b>
+<b class="fc">&nbsp;            randomValue &lt;= (Rarity.MYTHIC.weight + Rarity.EPIC.weight + Rarity.RARE.weight) -&gt; Rarity.RARE</b>
+<b class="fc">&nbsp;            else -&gt; Rarity.COMMON</b>
+&nbsp;        }
 &nbsp;
-<b class="nc">&nbsp;  override val pusakaDatabaseQueries: PusakaDatabaseQueries = PusakaDatabaseQueries(driver)</b>
-&nbsp;
-&nbsp;  public object Schema : SqlSchema&lt;QueryResult.Value&lt;Unit&gt;&gt; {
-&nbsp;    override val version: Long
-<b class="nc">&nbsp;      get() = 1</b>
-&nbsp;
-&nbsp;    override fun create(driver: SqlDriver): QueryResult.Value&lt;Unit&gt; {
-<b class="nc">&nbsp;      driver.execute(null, &quot;&quot;&quot;</b>
-&nbsp;          |CREATE TABLE NoteEntity (
-&nbsp;          |    id INTEGER PRIMARY KEY AUTOINCREMENT,
-&nbsp;          |    title TEXT NOT NULL,
-&nbsp;          |    content TEXT NOT NULL,
-&nbsp;          |    category TEXT NOT NULL DEFAULT &#39;GENERAL&#39;,
-&nbsp;          |    color TEXT NOT NULL DEFAULT &#39;DEFAULT&#39;,
-&nbsp;          |    is_pinned INTEGER NOT NULL DEFAULT 0,
-&nbsp;          |    created_at INTEGER NOT NULL,
-&nbsp;          |    updated_at INTEGER NOT NULL
-&nbsp;          |)
-<b class="nc">&nbsp;          &quot;&quot;&quot;.trimMargin(), 0)</b>
-<b class="nc">&nbsp;      driver.execute(null, &quot;&quot;&quot;</b>
-&nbsp;          |CREATE TABLE WordEntity (
-&nbsp;          |    id TEXT NOT NULL PRIMARY KEY,
-&nbsp;          |    term TEXT NOT NULL,
-&nbsp;          |    definition TEXT NOT NULL,
-&nbsp;          |    category TEXT NOT NULL,
-&nbsp;          |    example TEXT NOT NULL DEFAULT &#39;&#39;,
-&nbsp;          |    createdAt INTEGER NOT NULL,
-&nbsp;          |    -- SRS Fields
-&nbsp;          |    intervalDays INTEGER NOT NULL DEFAULT 0,
-&nbsp;          |    easeFactor REAL NOT NULL DEFAULT 2.5,
-&nbsp;          |    nextReview INTEGER,
-&nbsp;          |    level INTEGER NOT NULL DEFAULT 0,
-&nbsp;          |    isFavorite INTEGER NOT NULL DEFAULT 0
-&nbsp;          |)
-<b class="nc">&nbsp;          &quot;&quot;&quot;.trimMargin(), 0)</b>
-<b class="nc">&nbsp;      driver.execute(null, &quot;&quot;&quot;</b>
-&nbsp;          |CREATE TABLE UserStats (
-&nbsp;          |    id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
-&nbsp;          |    tokens INTEGER NOT NULL DEFAULT 0
-&nbsp;          |)
-<b class="nc">&nbsp;          &quot;&quot;&quot;.trimMargin(), 0)</b>
-<b class="nc">&nbsp;      driver.execute(null, &quot;&quot;&quot;</b>
-&nbsp;          |CREATE TABLE CollectedCardEntity (
-&nbsp;          |    cardId TEXT NOT NULL PRIMARY KEY,
-&nbsp;          |    collectedAt INTEGER NOT NULL
-&nbsp;          |)
-<b class="nc">&nbsp;          &quot;&quot;&quot;.trimMargin(), 0)</b>
-<b class="nc">&nbsp;      driver.execute(null, &quot;INSERT OR IGNORE INTO UserStats(id, tokens) VALUES (1, 0)&quot;, 0)</b>
-<b class="nc">&nbsp;      return QueryResult.Unit</b>
+<b class="fc">&nbsp;        val cardsInRarity = availableCards.filter { it.rarity == selectedRarity }</b>
+&nbsp;        
+&nbsp;        // Fallback jika tidak ada kartu di rarity tersebut (opsional)
+<b class="fc">&nbsp;        return if (cardsInRarity.isNotEmpty()) {</b>
+<b class="fc">&nbsp;            cardsInRarity.random()</b>
+&nbsp;        } else {
+<b class="fc">&nbsp;            availableCards.random()</b>
+&nbsp;        }
 &nbsp;    }
-&nbsp;
-&nbsp;    override fun migrate(
-&nbsp;      driver: SqlDriver,
-&nbsp;      oldVersion: Long,
-&nbsp;      newVersion: Long,
-&nbsp;      vararg callbacks: AfterVersion,
-<b class="nc">&nbsp;    ): QueryResult.Value&lt;Unit&gt; = QueryResult.Unit</b>
-&nbsp;  }
 &nbsp;}
 </code>
 </pre>
@@ -243,7 +152,7 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2026-06-11 15:33</div>
+    <div style="float:right;">generated on 2026-06-11 23:31</div>
 </div>
 </body>
 </html>

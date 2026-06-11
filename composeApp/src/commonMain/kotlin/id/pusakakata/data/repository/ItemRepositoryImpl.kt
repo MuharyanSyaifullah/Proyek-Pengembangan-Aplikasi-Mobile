@@ -34,6 +34,7 @@ class ItemRepositoryImpl(
     init {
         // Pre-populate database with 15 sample words if empty
         repositoryScope.launch {
+            queries.resetTokens()
             val currentCount = queries.getAllWords().executeAsList().size.toLong()
             if (currentCount == 0L) {
                 getInitialWords().forEach { word ->
@@ -51,7 +52,7 @@ class ItemRepositoryImpl(
                         isFavorite = 0
                     )
                 }
-                queries.addTokens(50) // Give some initial tokens
+                queries.addTokens(0) // Give some initial tokens
             }
         }
     }

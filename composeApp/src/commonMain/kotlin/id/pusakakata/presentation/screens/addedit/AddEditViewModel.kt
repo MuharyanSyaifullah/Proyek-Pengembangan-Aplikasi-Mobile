@@ -26,6 +26,8 @@ class AddEditViewModel(
     private val _uiState = MutableStateFlow(AddEditUiState())
     val uiState: StateFlow<AddEditUiState> = _uiState.asStateFlow()
 
+    private var existingWord: Word? = null
+
     init {
         if (wordId != null) {
             loadWord(wordId)
@@ -36,6 +38,7 @@ class AddEditViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, wordId = id) }
             repository.getWordById(id)?.let { word ->
+                existingWord = word
                 _uiState.update { 
                     it.copy(
                         term = word.term,
@@ -109,7 +112,9 @@ class AddEditViewModel(
                 term = currentState.term.trim(),
                 definition = currentState.definition.trim(),
                 category = currentState.category.trim(),
-                example = currentState.example.trim()
+                example = currentState.example.trim(),
+                isFavorite = existingWord?.isFavorite ?: false,
+                srsData = existingWord?.srsData ?: id.pusakakata.domain.model.SRSData()
             )
             try {
                 if (wordId == null) {

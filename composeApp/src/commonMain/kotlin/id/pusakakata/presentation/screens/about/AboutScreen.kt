@@ -103,7 +103,7 @@ fun AboutScreen(onBack: () -> Unit) {
             Spacer(modifier = Modifier.weight(1f))
 
             Text(
-                text = "Dibuat dengan ❤️ untuk Indonesia",
+                text = "Dibuat oleh Kelompok Kicaw Mania",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline
             )

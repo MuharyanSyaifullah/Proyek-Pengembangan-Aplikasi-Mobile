@@ -5,7 +5,7 @@
 <html id="htmlId">
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
-  <title>composeApp Coverage Report > GachaViewModel</title>
+  <title>composeApp Coverage Report > SettingsViewModel</title>
   <style type="text/css">
     @import "../../css/coverage.css";
     @import "../../css/idea.min.css";
@@ -19,10 +19,10 @@
 <div class="breadCrumbs">
 Current scope: composeApp<span class="separator">|</span>    <a href="../../index.html">all classes</a>
     <span class="separator">|</span>
-    <a href="../index.html">id.pusakakata.presentation.screens.gacha</a>
+    <a href="../index.html">id.pusakakata.presentation.screens.settings</a>
 </div>
 
-<h1>Coverage Summary for Class: GachaViewModel (id.pusakakata.presentation.screens.gacha)</h1>
+<h1>Coverage Summary for Class: SettingsViewModel (id.pusakakata.presentation.screens.settings)</h1>
 
 <table class="coverageStats">
 
@@ -46,65 +46,58 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 </th>
 </tr>
 <tr>
-  <td class="name">GachaViewModel</td>
+  <td class="name">SettingsViewModel</td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (3/3)
+    (0/2)
   </span>
 </td>
     <td class="coverageStat"/>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (9/9)
+    (0/8)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (57/57)
+    (0/39)
   </span>
 </td>
 </tr>
   <tr>
-    <td class="name">GachaViewModel$drawCard$1</td>
+    <td class="name">SettingsViewModel$setTheme$1</td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (1/1)
+    (0/1)
+  </span>
+</td>
+    <td class="coverageStat"/>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (2/2)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (7/7)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (71/71)
+    (0/14)
   </span>
 </td>
   </tr>
@@ -112,34 +105,27 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
   <td class="name"><strong>Total</strong></td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (4/4)
+    (0/3)
+  </span>
+</td>
+    <td class="coverageStat"/>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
   </span>
 </td>
 <td class="coverageStat">
   <span class="percent">
-    100%
+    0%
   </span>
   <span class="absValue">
-    (2/2)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (16/16)
-  </span>
-</td>
-<td class="coverageStat">
-  <span class="percent">
-    100%
-  </span>
-  <span class="absValue">
-    (128/128)
+    (0/53)
   </span>
 </td>
 </tr>
@@ -150,50 +136,31 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 
 
 <pre>
-<code class="sourceCode" id="sourceCode">&nbsp;package id.pusakakata.presentation.screens.gacha
+<code class="sourceCode" id="sourceCode">&nbsp;package id.pusakakata.presentation.screens.settings
 &nbsp;
 &nbsp;import androidx.lifecycle.ViewModel
 &nbsp;import androidx.lifecycle.viewModelScope
-&nbsp;import id.pusakakata.domain.model.LegendaryCard
-&nbsp;import id.pusakakata.domain.usecase.GachaSystem
-&nbsp;import id.pusakakata.domain.repository.ItemRepository
-&nbsp;import kotlinx.coroutines.flow.*
+&nbsp;import id.pusakakata.domain.repository.SettingsRepository
+&nbsp;import kotlinx.coroutines.flow.SharingStarted
+&nbsp;import kotlinx.coroutines.flow.StateFlow
+&nbsp;import kotlinx.coroutines.flow.stateIn
 &nbsp;import kotlinx.coroutines.launch
-&nbsp;import kotlinx.coroutines.delay
 &nbsp;
-&nbsp;sealed class GachaUiState {
-&nbsp;    object Idle : GachaUiState()
-&nbsp;    object Drawing : GachaUiState()
-&nbsp;    data class Result(val card: LegendaryCard) : GachaUiState()
-&nbsp;    data class Error(val message: String) : GachaUiState()
-&nbsp;}
+&nbsp;class SettingsViewModel(
+<b class="nc">&nbsp;    private val repository: SettingsRepository</b>
+<b class="nc">&nbsp;) : ViewModel() {</b>
 &nbsp;
-&nbsp;class GachaViewModel(
-<b class="fc">&nbsp;    private val gachaSystem: GachaSystem,</b>
-<b class="fc">&nbsp;    private val repository: ItemRepository</b>
-<b class="fc">&nbsp;) : ViewModel() {</b>
-<b class="fc">&nbsp;    private val _uiState = MutableStateFlow&lt;GachaUiState&gt;(GachaUiState.Idle)</b>
-<b class="fc">&nbsp;    val uiState: StateFlow&lt;GachaUiState&gt; = _uiState</b>
+<b class="nc">&nbsp;    val theme: StateFlow&lt;AppTheme&gt; = repository.getTheme()</b>
+<b class="nc">&nbsp;        .stateIn(</b>
+<b class="nc">&nbsp;            scope = viewModelScope,</b>
+<b class="nc">&nbsp;            started = SharingStarted.WhileSubscribed(5000),</b>
+<b class="nc">&nbsp;            initialValue = AppTheme.SYSTEM</b>
+&nbsp;        )
 &nbsp;
-<b class="fc">&nbsp;    val tokens: StateFlow&lt;Long&gt; = repository.getTokens()</b>
-<b class="fc">&nbsp;        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)</b>
-&nbsp;
-&nbsp;    fun drawCard() {
-<b class="fc">&nbsp;        viewModelScope.launch {</b>
-<b class="fc">&nbsp;            if (repository.useToken()) {</b>
-<b class="fc">&nbsp;                _uiState.value = GachaUiState.Drawing</b>
-<b class="fc">&nbsp;                delay(1500)</b>
-<b class="fc">&nbsp;                val card = gachaSystem.drawCard()</b>
-<b class="fc">&nbsp;                repository.saveCollectedCard(card.id) // Save to collection</b>
-<b class="fc">&nbsp;                _uiState.value = GachaUiState.Result(card)</b>
-&nbsp;            } else {
-<b class="fc">&nbsp;                _uiState.value = GachaUiState.Error(&quot;Token tidak cukup! Selesaikan kuis untuk dapat token.&quot;)</b>
-&nbsp;            }
+&nbsp;    fun setTheme(theme: AppTheme) {
+<b class="nc">&nbsp;        viewModelScope.launch {</b>
+<b class="nc">&nbsp;            repository.setTheme(theme)</b>
 &nbsp;        }
-&nbsp;    }
-&nbsp;
-&nbsp;    fun reset() {
-<b class="fc">&nbsp;        _uiState.value = GachaUiState.Idle</b>
 &nbsp;    }
 &nbsp;}
 </code>
@@ -219,7 +186,7 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2026-06-11 15:33</div>
+    <div style="float:right;">generated on 2026-06-11 17:13</div>
 </div>
 </body>
 </html>

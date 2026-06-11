@@ -228,7 +228,7 @@ fun ResultDialog(isCorrect: Boolean, onUpdateSrs: (Int) -> Unit) {
         text = { 
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    if (isCorrect) "Anda berhasil menebak dengan benar dan mendapatkan +10 Token Pusaka! 🪙" 
+                    if (isCorrect) "Anda berhasil menebak dengan benar dan mendapatkan +1 Token Pusaka! 🪙"
                     else "Jangan berkecil hati, pusaka ini memang butuh waktu untuk dipahami.",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyLarge

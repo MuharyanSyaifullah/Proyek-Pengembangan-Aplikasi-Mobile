@@ -63,16 +63,7 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
     0%
   </span>
   <span class="absValue">
-    (0/1)
-  </span>
-</td>
-    <td class="coverageStat"/>
-<td class="coverageStat">
-  <span class="percent">
-    0%
-  </span>
-  <span class="absValue">
-    (0/3)
+    (0/2)
   </span>
 </td>
 <td class="coverageStat">
@@ -80,7 +71,23 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
     0%
   </span>
   <span class="absValue">
-    (0/38)
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/94)
   </span>
 </td>
 </tr>
@@ -94,14 +101,29 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 <pre>
 <code class="sourceCode" id="sourceCode">&nbsp;package id.pusakakata
 &nbsp;
+&nbsp;import androidx.compose.foundation.isSystemInDarkTheme
 &nbsp;import androidx.compose.runtime.Composable
+&nbsp;import androidx.compose.runtime.collectAsState
+&nbsp;import androidx.compose.runtime.getValue
 &nbsp;import androidx.navigation.compose.rememberNavController
 &nbsp;import id.pusakakata.presentation.navigation.AppNavHost
+&nbsp;import id.pusakakata.presentation.screens.settings.AppTheme
+&nbsp;import id.pusakakata.presentation.screens.settings.SettingsViewModel
 &nbsp;import id.pusakakata.presentation.theme.PusakaKataTheme
+&nbsp;import org.koin.compose.viewmodel.koinViewModel
 &nbsp;
 &nbsp;@Composable
 <b class="nc">&nbsp;fun PusakaApp() {</b>
-<b class="nc">&nbsp;    PusakaKataTheme {</b>
+<b class="nc">&nbsp;    val settingsViewModel: SettingsViewModel = koinViewModel()</b>
+<b class="nc">&nbsp;    val theme by settingsViewModel.theme.collectAsState()</b>
+&nbsp;    
+<b class="nc">&nbsp;    val darkTheme = when (theme) {</b>
+<b class="nc">&nbsp;        AppTheme.SYSTEM -&gt; isSystemInDarkTheme()</b>
+<b class="nc">&nbsp;        AppTheme.LIGHT -&gt; false</b>
+<b class="nc">&nbsp;        AppTheme.DARK -&gt; true</b>
+&nbsp;    }
+&nbsp;
+<b class="nc">&nbsp;    PusakaKataTheme(darkTheme = darkTheme) {</b>
 &nbsp;        val navController = rememberNavController()
 &nbsp;        AppNavHost(navController = navController)
 &nbsp;    }
@@ -129,7 +151,7 @@ Current scope: composeApp<span class="separator">|</span>    <a href="../../inde
 
 <div class="footer">
     
-    <div style="float:right;">generated on 2026-06-11 15:33</div>
+    <div style="float:right;">generated on 2026-06-11 17:13</div>
 </div>
 </body>
 </html>
