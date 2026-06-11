@@ -20,6 +20,8 @@
 5. 📝 **Kuis Pintar:** Melatih ingatan kosa kata dan mendapatkan reward token.
 6. ❤️ **Favorit:** Tandai kosakata pusaka yang paling kamu sukai.
 7. 📴 **Dukungan Offline:** Database lokal SQLDelight dengan data awal yang siap digunakan tanpa internet.
+8. 🌙 **Mode Gelap/Terang:** Mendukung preferensi tema sistem secara otomatis atau pilihan manual yang tersimpan (*persistent*).
+9. 📱 **Navigasi Swipe:** Pengalaman navigasi modern antar tab utama menggunakan gestur geser.
 
 ---
 
