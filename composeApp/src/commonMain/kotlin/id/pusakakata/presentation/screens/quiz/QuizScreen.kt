@@ -260,17 +260,27 @@ fun ResultDialog(isCorrect: Boolean, onUpdateSrs: (Int) -> Unit) {
 fun DifficultyOption(label: String, quality: Int, onClick: (Int) -> Unit) {
     Button(
         onClick = { onClick(quality) },
-        modifier = Modifier.fillMaxWidth().height(52.dp),
-        shape = RoundedCornerShape(16.dp),
+        modifier = Modifier.fillMaxWidth().height(56.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = when(quality) {
                 5 -> MaterialTheme.colorScheme.primary
                 3 -> MaterialTheme.colorScheme.secondary
-                else -> MaterialTheme.colorScheme.outline
-            }
+                else -> MaterialTheme.colorScheme.tertiary
+            },
+            contentColor = Color.White
         ),
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = 4.dp,
+            pressedElevation = 0.dp
+        )
     ) {
-        Text(label, fontWeight = FontWeight.Black, letterSpacing = 0.5.sp)
+        Text(
+            text = label.uppercase(),
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp
+            )
+        )
     }
 }

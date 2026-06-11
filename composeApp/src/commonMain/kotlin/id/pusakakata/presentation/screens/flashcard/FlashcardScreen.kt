@@ -7,14 +7,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,14 +35,14 @@ fun FlashcardScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Asah Pusaka") },
+            CenterAlignedTopAppBar(
+                title = { Text("ASAH PUSAKA", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black, letterSpacing = 2.sp)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = androidx.compose.ui.graphics.Color.Transparent)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { padding ->
@@ -50,26 +52,33 @@ fun FlashcardScreen(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f))
+                        listOf(MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.05f))
                     )
                 )
         ) {
-            when (val state = uiState) {
-                is FlashcardUiState.Loading -> LoadingIndicator()
-                is FlashcardUiState.Empty -> EmptyState(
-                    message = "Semua pusaka sudah diasah! Datang lagi besok.",
-                    onAction = onBack,
-                    actionLabel = "Kembali"
-                )
-                is FlashcardUiState.Success -> {
-                    if (state.isFinished) {
-                        EmptyState(
-                            message = "Sesi belajar selesai! Pengetahuan Anda semakin tajam.",
-                            onAction = onBack,
-                            actionLabel = "Kembali ke Menu"
-                        )
-                    } else {
-                        FlashcardContent(state, viewModel::flipCard, viewModel::nextCard)
+            AnimatedContent(
+                targetState = uiState,
+                transitionSpec = {
+                    fadeIn(tween(400)) togetherWith fadeOut(tween(400))
+                }
+            ) { state ->
+                when (state) {
+                    is FlashcardUiState.Loading -> LoadingIndicator()
+                    is FlashcardUiState.Empty -> EmptyState(
+                        message = "Semua pusaka sudah diasah! Datang lagi besok untuk mempertajam ingatan Anda.",
+                        onAction = onBack,
+                        actionLabel = "Kembali"
+                    )
+                    is FlashcardUiState.Success -> {
+                        if (state.isFinished) {
+                            EmptyState(
+                                message = "Sesi belajar selesai! Pengetahuan Anda tentang kosakata Nusantara semakin tajam. 🎉",
+                                onAction = onBack,
+                                actionLabel = "Kembali ke Menu"
+                            )
+                        } else {
+                            FlashcardContent(state, viewModel::flipCard, viewModel::nextCard)
+                        }
                     }
                 }
             }
@@ -93,27 +102,34 @@ fun FlashcardContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            "KARTU ${state.currentIndex + 1} DARI ${state.words.size}",
-            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 2.sp),
-            color = MaterialTheme.colorScheme.secondary
-        )
+        Surface(
+            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                "KARTU ${state.currentIndex + 1} / ${state.words.size}",
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Black, letterSpacing = 1.sp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
         
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(40.dp))
         
         val currentWord = state.currentWord
         if (currentWord != null) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(420.dp)
                     .graphicsLayer {
                         rotationY = rotation
                         cameraDistance = 12f * density
                     }
+                    .shadow(12.dp, RoundedCornerShape(32.dp))
+                    .clip(RoundedCornerShape(32.dp))
                     .clickable { onFlip() },
                 shape = RoundedCornerShape(32.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (rotation <= 90f) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
                 )
@@ -123,7 +139,6 @@ fun FlashcardContent(
                     contentAlignment = Alignment.Center
                 ) {
                     if (rotation <= 90f) {
-                        // Front Side
                         Text(
                             text = currentWord.term,
                             style = MaterialTheme.typography.displayMedium,
@@ -132,16 +147,25 @@ fun FlashcardContent(
                             textAlign = TextAlign.Center
                         )
                     } else {
-                        // Back Side (flipped)
                         Column(
                             modifier = Modifier.graphicsLayer { rotationY = 180f },
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text("MAKNA", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
-                            Spacer(Modifier.height(16.dp))
+                            Surface(
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    "MAKNA", 
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Spacer(Modifier.height(24.dp))
                             Text(
                                 text = currentWord.definition,
-                                style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 28.sp),
+                                style = MaterialTheme.typography.titleLarge.copy(lineHeight = 32.sp, fontWeight = FontWeight.SemiBold),
                                 textAlign = TextAlign.Center
                             )
                         }
@@ -149,20 +173,30 @@ fun FlashcardContent(
                 }
             }
             
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(60.dp))
 
             AnimatedVisibility(
                 visible = state.isFlipped,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
+                enter = fadeIn() + slideInVertically { it / 2 },
+                exit = fadeOut()
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    FlashcardActionButton("Sulit", MaterialTheme.colorScheme.tertiary, Modifier.weight(1f)) { onNext(1) }
-                    FlashcardActionButton("Biasa", MaterialTheme.colorScheme.secondary, Modifier.weight(1f)) { onNext(3) }
-                    FlashcardActionButton("Mudah", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onNext(5) }
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        "SEBERAPA HAFAL ANDA?", 
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Black, letterSpacing = 1.sp),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FlashcardActionButton("Lupa", MaterialTheme.colorScheme.tertiary, Modifier.weight(1f)) { onNext(1) }
+                        FlashcardActionButton("Ingat", MaterialTheme.colorScheme.secondary, Modifier.weight(1f)) { onNext(3) }
+                        FlashcardActionButton("Hafal", MaterialTheme.colorScheme.primary, Modifier.weight(1f)) { onNext(5) }
+                    }
                 }
             }
             
@@ -171,7 +205,7 @@ fun FlashcardContent(
                     "Ketuk kartu untuk melihat arti", 
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    modifier = Modifier.alpha(0.7f)
                 )
             }
         }
@@ -179,14 +213,14 @@ fun FlashcardContent(
 }
 
 @Composable
-fun FlashcardActionButton(label: String, color: androidx.compose.ui.graphics.Color, modifier: Modifier, onClick: () -> Unit) {
+fun FlashcardActionButton(label: String, color: Color, modifier: Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = color),
-        contentPadding = PaddingValues(vertical = 12.dp)
+        modifier = modifier.height(56.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
     ) {
-        Text(label, fontWeight = FontWeight.Bold)
+        Text(label.uppercase(), fontWeight = FontWeight.ExtraBold, fontSize = 12.sp)
     }
 }
