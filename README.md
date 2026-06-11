@@ -71,6 +71,15 @@ Aplikasi ini dibangun dengan standar **Modern Android Development**:
 
 ---
 
+## 📦 Artefak Submission
+Seluruh dokumen pendukung untuk penilaian dapat ditemukan di folder `Submission_PusakaKata/`:
+*   **APK:** `Submission_PusakaKata/APK/PusakaKata_v1.0.apk`
+*   **Laporan Coverage:** `Submission_PusakaKata/Reports/Coverage/index.html`
+*   **Hasil Unit Test:** `Submission_PusakaKata/Reports/UnitTests/index.html`
+*   **Kumpulan Screenshot:** `Submission_PusakaKata/Screenshots/`
+
+---
+
 ## 🚀 Cara Menjalankan
 1. **Setup API Key:** Masukkan `GEMINI_API_KEY` di file `local.properties`.
 2. **Sync Gradle:** Tunggu hingga proses sinkronisasi selesai.
