@@ -180,8 +180,7 @@ class ItemRepositoryImpl(
     }
 
     override fun getTokens(): Flow<Long> {
-        // return queries.getTokens().asFlow().mapToOne(Dispatchers.IO)
-        return kotlinx.coroutines.flow.flowOf(0L) // Simulasi 0 coin untuk demo/testing
+        return queries.getTokens().asFlow().mapToOne(Dispatchers.IO)
     }
 
     override suspend fun addTokens(amount: Long) {
@@ -189,14 +188,11 @@ class ItemRepositoryImpl(
     }
 
     override suspend fun useToken(): Boolean {
-        /*
         val current = queries.getTokens().executeAsOne()
         return if (current > 0) {
             queries.useToken()
             true
         } else false
-        */
-        return false // Paksa gagal gunakan token karena simulasi 0
     }
 
     override suspend fun getRandomWords(limit: Long): List<Word> {
