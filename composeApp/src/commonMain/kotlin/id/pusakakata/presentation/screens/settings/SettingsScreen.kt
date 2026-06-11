@@ -5,21 +5,29 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    viewModel: SettingsViewModel,
     onBack: () -> Unit,
     onNavigateToAbout: () -> Unit
 ) {
+    val currentTheme by viewModel.theme.collectAsState()
+    var showThemeDialog by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Pengaturan") },
+            CenterAlignedTopAppBar(
+                title = { Text("PENGATURAN", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
@@ -32,7 +40,7 @@ fun SettingsScreen(
             modifier = Modifier.padding(padding).fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Aplikasi", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text("Aplikasi", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             
             ListItem(
                 headlineContent = { Text("Tentang Pusaka Kata") },
@@ -41,14 +49,80 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { onNavigateToAbout() }
             )
 
-            HorizontalDivider()
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp).alpha(0.1f))
             
-            Text("Preferensi (Segera Hadir)", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text("Tampilan", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
             
             ListItem(
-                headlineContent = { Text("Tema Gelap") },
-                trailingContent = { Switch(checked = false, onCheckedChange = {}) }
+                headlineContent = { Text("Tema Aplikasi") },
+                supportingContent = { 
+                    Text(when(currentTheme) {
+                        AppTheme.SYSTEM -> "Ikuti Sistem"
+                        AppTheme.LIGHT -> "Terang"
+                        AppTheme.DARK -> "Gelap"
+                    }) 
+                },
+                leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
+                modifier = Modifier.clickable { showThemeDialog = true }
             )
         }
+    }
+
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            title = { Text("Pilih Tema", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    ThemeOption(
+                        label = "Ikuti Sistem",
+                        selected = currentTheme == AppTheme.SYSTEM,
+                        onClick = { 
+                            viewModel.setTheme(AppTheme.SYSTEM)
+                            showThemeDialog = false
+                        }
+                    )
+                    ThemeOption(
+                        label = "Terang",
+                        selected = currentTheme == AppTheme.LIGHT,
+                        onClick = { 
+                            viewModel.setTheme(AppTheme.LIGHT)
+                            showThemeDialog = false
+                        }
+                    )
+                    ThemeOption(
+                        label = "Gelap",
+                        selected = currentTheme == AppTheme.DARK,
+                        onClick = { 
+                            viewModel.setTheme(AppTheme.DARK)
+                            showThemeDialog = false
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showThemeDialog = false }) {
+                    Text("Batal")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun ThemeOption(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label)
+        RadioButton(selected = selected, onClick = null)
     }
 }

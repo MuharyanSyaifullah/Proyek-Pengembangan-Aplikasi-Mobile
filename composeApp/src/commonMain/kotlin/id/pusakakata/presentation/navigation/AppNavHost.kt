@@ -22,6 +22,7 @@ import id.pusakakata.presentation.screens.home.HomeViewModel
 import id.pusakakata.presentation.screens.quiz.QuizScreen
 import id.pusakakata.presentation.screens.quiz.QuizViewModel
 import id.pusakakata.presentation.screens.settings.SettingsScreen
+import id.pusakakata.presentation.screens.settings.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -106,7 +107,9 @@ fun AppNavHost(navController: NavHostController) {
         }
         
         composable(Routes.Settings.route) {
+            val viewModel: SettingsViewModel = koinViewModel()
             SettingsScreen(
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() },
                 onNavigateToAbout = { navController.navigate(Routes.About.route) }
             )
