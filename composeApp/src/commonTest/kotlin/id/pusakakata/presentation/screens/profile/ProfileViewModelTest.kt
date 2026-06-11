@@ -5,6 +5,7 @@ import id.pusakakata.domain.model.Word
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
 import kotlin.test.*
 
@@ -29,14 +30,18 @@ class ProfileViewModelTest {
 
     @Test
     fun stats_updateCorrectly() = runTest {
+        backgroundScope.launch { viewModel.totalWords.collect {} }
+        backgroundScope.launch { viewModel.favoriteCount.collect {} }
+        backgroundScope.launch { viewModel.tokens.collect {} }
+        
         repository.insertWord(Word("1", "T1", "D1", "C1"))
         repository.insertWord(Word("2", "T2", "D2", "C1", isFavorite = true))
         repository.addTokens(20)
         
         advanceUntilIdle()
         
-        assertEquals(2, viewModel.totalWords.first())
-        assertEquals(1, viewModel.favoriteCount.first())
-        assertEquals(20L, viewModel.tokens.first())
+        assertEquals(2, viewModel.totalWords.value)
+        assertEquals(1, viewModel.favoriteCount.value)
+        assertEquals(20L, viewModel.tokens.value)
     }
 }
