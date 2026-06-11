@@ -92,7 +92,25 @@ Aplikasi ini memiliki cakupan pengujian yang luas (>70% coverage):
 ---
 
 ## 🚀 Cara Menjalankan
-1. Clone repository ini.
-2. Masukkan `GEMINI_API_KEY` Anda ke dalam file `local.properties`.
-3. Buka di Android Studio (Ladybug atau terbaru).
-4. Run `composeApp`.
+### Prasyarat
+- Android Studio Ladybug (2024.2.1) atau versi terbaru.
+- JDK 17 atau 21.
+
+### Langkah-langkah
+1. **Clone Repository:**
+   ```bash
+   git clone https://github.com/MuharyanSyaifullah/Proyek-Pengembangan-Aplikasi-Mobile.git
+   ```
+2. **Setup API Key:**
+   - Salin file `local.properties.example` menjadi `local.properties`.
+   - Masukkan `GEMINI_API_KEY` Anda dari [Google AI Studio](https://aistudio.google.com/).
+3. **Sync Gradle:** Tunggu hingga proses sinkronisasi selesai.
+4. **Jalankan Aplikasi:** Pilih modul `composeApp` dan jalankan pada emulator atau perangkat fisik.
+
+---
+
+## 🛠️ Pengembangan
+Kami menggunakan alur kerja berbasis branch dan commit convention yang ketat. Silakan baca **[CONTRIBUTING.md](./CONTRIBUTING.md)** untuk panduan lebih lanjut.
+
+## 📄 Lisensi
+Proyek ini dibuat untuk memenuhi tugas mata kuliah Pengembangan Aplikasi Mobile.

@@ -8,7 +8,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
@@ -19,10 +23,10 @@ import androidx.compose.ui.unit.dp
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBack: () -> Unit,
-    onNavigateToAbout: () -> Unit
+    onNavigateToAbout: () -> Unit,
 ) {
     val currentTheme by viewModel.theme.collectAsState()
-    var showThemeDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(value = false) }
 
     Scaffold(
         topBar = {
@@ -30,7 +34,7 @@ fun SettingsScreen(
                 title = { Text("PENGATURAN", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Kembali")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Kembali")
                     }
                 }
             )
@@ -56,11 +60,12 @@ fun SettingsScreen(
             ListItem(
                 headlineContent = { Text("Tema Aplikasi") },
                 supportingContent = { 
-                    Text(when(currentTheme) {
+                    val themeText = when(currentTheme) {
                         AppTheme.SYSTEM -> "Ikuti Sistem"
                         AppTheme.LIGHT -> "Terang"
                         AppTheme.DARK -> "Gelap"
-                    }) 
+                    }
+                    Text(themeText)
                 },
                 leadingContent = { Icon(Icons.Default.Palette, contentDescription = null) },
                 modifier = Modifier.clickable { showThemeDialog = true }
