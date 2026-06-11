@@ -88,7 +88,7 @@ fun GachaScreen(
                 ) { state ->
                     when (state) {
                         is GachaUiState.Idle -> {
-                            GachaIdleView(onDraw = viewModel::drawCard, canDraw = true) 
+                            GachaIdleView(onDraw = viewModel::drawCard, canDraw = tokens > 0)
                         }
                         is GachaUiState.Drawing -> {
                             GachaDrawingView()
