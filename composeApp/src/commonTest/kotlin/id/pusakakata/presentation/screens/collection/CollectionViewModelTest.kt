@@ -57,4 +57,16 @@ class CollectionViewModelTest {
         assertEquals(1, viewModel.uiState.value.collectedIds.size)
         job.cancel()
     }
+
+    @Test
+    fun initialState_loadsCollectedCards() = runTest {
+        repository.saveCollectedCard("1")
+        
+        val viewModel2 = CollectionViewModel(gachaSystem, repository)
+        val job = backgroundScope.launch { viewModel2.uiState.collect {} }
+        advanceUntilIdle()
+        
+        assertTrue(viewModel2.uiState.value.collectedIds.contains("1"))
+        job.cancel()
+    }
 }

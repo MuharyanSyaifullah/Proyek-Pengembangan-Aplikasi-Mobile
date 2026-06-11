@@ -59,4 +59,17 @@ class FavoriteViewModelTest {
         assertEquals(FavoriteUiState.Empty, viewModel.uiState.value)
         job.cancel()
     }
+
+    @Test
+    fun deleteWord_removesFromState() = runTest {
+        val job = backgroundScope.launch { viewModel.uiState.collect {} }
+        repository.insertWord(Word("1", "T1", "D1", "C1", isFavorite = true))
+        advanceUntilIdle()
+        
+        viewModel.deleteWord("1")
+        advanceUntilIdle()
+        
+        assertEquals(FavoriteUiState.Empty, viewModel.uiState.value)
+        job.cancel()
+    }
 }

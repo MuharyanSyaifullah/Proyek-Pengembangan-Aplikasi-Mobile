@@ -45,9 +45,28 @@ class QuizViewModelTest {
     }
 
     @Test
+    fun updateSrsAndNext_movesToNextQuestion() = runTest {
+        repository.insertWord(Word("1", "T1", "D1", "C1"))
+        repository.insertWord(Word("2", "T2", "D2", "C1"))
+        repository.insertWord(Word("3", "T3", "D3", "C1"))
+        repository.insertWord(Word("4", "T4", "D4", "C1"))
+
+        viewModel = QuizViewModel(repository)
+        advanceUntilIdle()
+        
+        val state = viewModel.uiState.value as QuizUiState.Question
+        viewModel.submitAnswer(state.correctAnswer)
+        advanceUntilIdle()
+        
+        viewModel.updateSrsAndNext(5)
+        advanceUntilIdle()
+        
+        assertTrue(viewModel.uiState.value is QuizUiState.Question)
+    }
+
+    @Test
     fun submitCorrectAnswer_finishesWithCorrect() = runTest {
-        val word = Word("1", "T1", "D1", "C1")
-        repository.insertWord(word)
+        repository.insertWord(Word("1", "T1", "D1", "C1"))
         repository.insertWord(Word("2", "T2", "D2", "C1"))
         repository.insertWord(Word("3", "T3", "D3", "C1"))
         

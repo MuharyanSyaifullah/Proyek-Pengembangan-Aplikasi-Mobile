@@ -89,4 +89,17 @@ class FlashcardViewModelTest {
         
         assertEquals(FlashcardUiState.Empty, viewModel.uiState.value)
     }
+
+    @Test
+    fun flipCard_updatesState() = runTest {
+        val word = Word("1", "T1", "D1", "C1", srsData = SRSData(nextReview = Clock.System.now()))
+        repository.insertWord(word)
+        
+        viewModel = FlashcardViewModel(repository)
+        advanceUntilIdle()
+        
+        viewModel.flipCard()
+        val state = viewModel.uiState.value as FlashcardUiState.Success
+        assertTrue(state.isFlipped)
+    }
 }

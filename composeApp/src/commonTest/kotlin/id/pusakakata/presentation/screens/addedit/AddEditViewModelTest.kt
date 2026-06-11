@@ -1,6 +1,7 @@
 package id.pusakakata.presentation.screens.addedit
 
 import id.pusakakata.data.repository.FakeItemRepository
+import id.pusakakata.domain.model.Word
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -66,5 +67,30 @@ class AddEditViewModelTest {
         
         advanceUntilIdle()
         assertEquals("AI Definition for Sasmita", viewModel.uiState.value.definition)
+    }
+
+    @Test
+    fun editExistingWord_loadsInitialData() = runTest {
+        val existingWord = Word("123", "Eka", "Cantik", "Umum")
+        repository.insertWord(existingWord)
+        
+        val editViewModel = AddEditViewModel(repository, "123")
+        advanceUntilIdle()
+        
+        val state = editViewModel.uiState.value
+        assertEquals("Eka", state.term)
+        assertEquals("Cantik", state.definition)
+    }
+
+    @Test
+    fun onCategoryChange_updatesState() {
+        viewModel.onCategoryChange("Sastra")
+        assertEquals("Sastra", viewModel.uiState.value.category)
+    }
+
+    @Test
+    fun onExampleChange_updatesState() {
+        viewModel.onExampleChange("Ini contoh")
+        assertEquals("Ini contoh", viewModel.uiState.value.example)
     }
 }

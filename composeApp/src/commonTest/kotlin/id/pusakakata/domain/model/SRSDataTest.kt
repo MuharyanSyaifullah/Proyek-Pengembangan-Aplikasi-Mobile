@@ -47,13 +47,47 @@ class SRSDataTest {
     }
 
     @Test
-    fun testSRSData_calculateNextReview_highQuality_multipleReviews() {
-        val srs = SRSData(intervalDays = 6, level = 2, easeFactor = 2.6)
+    fun testSRSData_calculateNextReview_minimumEaseFactor() {
+        var srs = SRSData(easeFactor = 1.3)
+        val now = Instant.fromEpochMilliseconds(0)
+        srs = srs.calculateNextReview(0, now) 
+        assertEquals(1.3, srs.easeFactor) 
+    }
+
+    @Test
+    fun testSRSData_calculateNextReview_variousIntervals() {
+        val now = Instant.fromEpochMilliseconds(0)
+        
+        // intervalDays == 0 -> 1
+        val srs0 = SRSData(intervalDays = 0)
+        assertEquals(1, srs0.calculateNextReview(3, now).intervalDays)
+        
+        // intervalDays == 1 -> 6
+        val srs1 = SRSData(intervalDays = 1)
+        assertEquals(6, srs1.calculateNextReview(3, now).intervalDays)
+    }
+
+    @Test
+    fun testSRSData_calculateNextReview_quality4_easeFactorUnchanged() {
+        val srs = SRSData(easeFactor = 2.5)
         val now = Instant.fromEpochMilliseconds(0)
         val next = srs.calculateNextReview(4, now)
-        
-        assertEquals(3, next.level)
-        assertEquals((6 * 2.6).toInt(), next.intervalDays)
+        assertEquals(2.5, next.easeFactor)
+    }
+
+    @Test
+    fun testSRSData_calculateNextReview_quality5_easeFactorIncreases() {
+        val srs = SRSData(easeFactor = 2.5)
+        val now = Instant.fromEpochMilliseconds(0)
+        val next = srs.calculateNextReview(5, now)
+        assertEquals(2.6, next.easeFactor)
+    }
+
+    @Test
+    fun testSRSData_calculateNextReview_quality0_easeFactorDecreases() {
+        val srs = SRSData(easeFactor = 2.5)
+        val now = Instant.fromEpochMilliseconds(0)
+        val next = srs.calculateNextReview(0, now)
+        assertTrue(next.easeFactor < 2.5)
     }
 }
-

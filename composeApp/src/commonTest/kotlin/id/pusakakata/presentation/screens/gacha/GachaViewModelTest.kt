@@ -6,6 +6,7 @@ import id.pusakakata.domain.model.Rarity
 import id.pusakakata.domain.usecase.GachaSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.*
 import kotlin.test.*
 
@@ -67,5 +68,18 @@ class GachaViewModelTest {
         
         viewModel.reset()
         assertEquals(GachaUiState.Idle, viewModel.uiState.value)
+    }
+
+    @Test
+    fun drawCard_savesToCollection() = runTest {
+        repository.addTokens(10)
+        viewModel.drawCard()
+        
+        testDispatcher.scheduler.advanceTimeBy(2000)
+        advanceUntilIdle()
+        
+        val collected = repository.getCollectedCardIds().first()
+        assertEquals(1, collected.size)
+        assertEquals("1", collected.first())
     }
 }

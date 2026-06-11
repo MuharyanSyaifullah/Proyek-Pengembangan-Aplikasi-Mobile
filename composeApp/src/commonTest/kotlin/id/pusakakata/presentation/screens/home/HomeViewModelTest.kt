@@ -100,4 +100,18 @@ class HomeViewModelTest {
         val updatedWord = repository.getWordById("1")
         assertTrue(updatedWord?.isFavorite == true)
     }
+
+    @Test
+    fun onSearchQueryChange_filtersWords() = runTest {
+        repository.insertWord(Word("1", "Sasmita", "Isyarat", "Cat"))
+        repository.insertWord(Word("2", "Meraki", "Jiwa", "Cat"))
+        advanceUntilIdle()
+
+        viewModel.onSearchQueryChange("Sas")
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value as HomeUiState.Success
+        assertEquals(1, state.words.size)
+        assertEquals("Sasmita", state.words.first().term)
+    }
 }

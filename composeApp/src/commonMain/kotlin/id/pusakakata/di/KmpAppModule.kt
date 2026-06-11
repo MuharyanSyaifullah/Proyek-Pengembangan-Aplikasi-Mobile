@@ -47,7 +47,7 @@ val networkModule = module {
         }
     }
     single { ApiService(get()) }
-    single { GeminiService(ApiConfig.GEMINI_API_KEY) }
+    single { GeminiService(get(), ApiConfig.GEMINI_API_KEY) }
 }
 
 val databaseModule = module {

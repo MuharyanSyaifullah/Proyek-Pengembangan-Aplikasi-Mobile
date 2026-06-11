@@ -29,7 +29,6 @@ class GachaSystemTest {
 
     @Test
     fun drawCard_canDrawMythic() {
-        // We draw many times to ensure we hit the mythic branch
         var mythicDrawn = false
         repeat(1000) {
             val card = gachaSystem.drawCard()
@@ -71,5 +70,12 @@ class GachaSystemTest {
     @Test
     fun getAllCards_returnsCorrectSize() {
         assertEquals(testCards.size, gachaSystem.getAllCards().size)
+    }
+
+    @Test
+    fun drawCard_rarityEmpty_returnsRandomCard() {
+        val system = GachaSystem(listOf(LegendaryCard("1", "C", "D", Rarity.COMMON, "", "O")))
+        val card = system.drawCard()
+        assertEquals(Rarity.COMMON, card.rarity)
     }
 }
